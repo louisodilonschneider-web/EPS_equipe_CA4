@@ -1,0 +1,3433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ÉPS Manager — v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #f5f7fb;
+  --bg2:      #edf0f7;
+  --card:     #ffffff;
+  --navy:     #0a1628;
+  --navy2:    #1a2e4a;
+  --accent:   #f05a24;
+  --accent2:  #003087;
+  --teal:     #00b4a0;
+  --green:    #22c55e;
+  --red:      #ef4444;
+  --amber:    #f59e0b;
+  --purple:   #8b5cf6;
+  --text:     #1a2a3a;
+  --text2:    #4a6080;
+  --text3:    #8a9ab8;
+  --border:   #dde3f0;
+  --radius:   10px;
+  --radius-lg:16px;
+  --radius-xl:20px;
+  --shadow:   0 2px 16px rgba(10,22,40,.08);
+  --shadow-lg:0 8px 40px rgba(10,22,40,.14);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════
+   AUTH SCREEN
+═══════════════════════════════════════════ */
+#auth-screen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--navy) 0%, #0f3d6e 50%, #003087 100%);
+  position: relative; overflow: hidden;
+}
+#auth-screen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(0,176,160,.25) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 80%, rgba(240,90,36,.2) 0%, transparent 60%);
+}
+.auth-card {
+  background: rgba(255,255,255,.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 24px;
+  padding: 48px 40px;
+  width: 100%; max-width: 440px;
+  position: relative; z-index: 1;
+  text-align: center;
+  box-shadow: 0 40px 80px rgba(0,0,0,.4);
+  animation: fadeSlideUp .5s ease;
+}
+@keyframes fadeSlideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+.auth-logo {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--accent), #ff8a50);
+  border-radius: 18px; display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; margin: 0 auto 24px;
+  box-shadow: 0 12px 32px rgba(240,90,36,.4);
+}
+.auth-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900; font-size: 2.6rem; letter-spacing: -.03em;
+  color: #fff; margin-bottom: 4px;
+}
+.auth-title span { color: var(--accent); }
+.auth-sub { color: rgba(255,255,255,.55); font-size: .95rem; margin-bottom: 36px; }
+.auth-input {
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  color: #fff; padding: 14px 16px; border-radius: 12px;
+  font-family: 'Outfit', sans-serif; font-size: 1rem; width: 100%;
+  transition: all .2s; outline: none; margin-bottom: 12px;
+}
+.auth-input::placeholder { color: rgba(255,255,255,.35); }
+.auth-input:focus { border-color: var(--teal); background: rgba(255,255,255,.12); box-shadow: 0 0 0 3px rgba(0,176,160,.2); }
+.auth-btn-google {
+  width: 100%; background: #fff; border: none;
+  border-radius: 12px; padding: 14px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600;
+  color: var(--navy); display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all .2s; margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+.auth-btn-google:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+.auth-btn-primary {
+  width: 100%; background: var(--accent); border: none;
+  border-radius: 12px; padding: 14px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700;
+  color: #fff; transition: all .2s; margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(240,90,36,.4);
+}
+.auth-btn-primary:hover { background: #d94e1e; transform: translateY(-1px); }
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
+.auth-divider::before, .auth-divider::after {
+  content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.15);
+}
+.auth-divider span { color: rgba(255,255,255,.4); font-size: .85rem; }
+.auth-toggle { color: rgba(255,255,255,.5); font-size: .88rem; cursor: pointer; }
+.auth-toggle span { color: var(--teal); font-weight: 600; }
+.auth-error { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.35); border-radius: 8px; padding: 10px 14px; color: #fca5a5; font-size: .85rem; margin-bottom: 12px; display: none; }
+
+/* ═══════════════════════════════════════════
+   APP LAYOUT
+═══════════════════════════════════════════ */
+#app { display: none; min-height: 100vh; }
+
+/* ── SIDEBAR ─────────────────────────── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 220px;
+  background: var(--navy); z-index: 200;
+  display: flex; flex-direction: column;
+  transition: transform .3s ease;
+  box-shadow: 4px 0 24px rgba(0,0,0,.15);
+}
+.sidebar-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.sidebar-logo {
+  font-family: 'Outfit', sans-serif; font-weight: 900;
+  font-size: 1.4rem; letter-spacing: -.02em; color: #fff;
+  display: flex; align-items: center; gap: 10px;
+}
+.sidebar-logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #ff8a50);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.sidebar-logo span { color: var(--accent); }
+.class-selector {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.class-selector label { display: block; font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.35); margin-bottom: 6px; }
+.class-select {
+  width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  color: #fff; padding: 8px 10px; border-radius: 8px;
+  font-family: 'Outfit', sans-serif; font-size: .88rem; outline: none; cursor: pointer;
+}
+.class-select option { background: var(--navy2); }
+.sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+.sidebar-section { margin-bottom: 6px; }
+.sidebar-section-title {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .1em;
+  color: rgba(255,255,255,.25); padding: 6px 8px 4px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 10px; cursor: pointer;
+  color: rgba(255,255,255,.6); font-size: .9rem; font-weight: 500;
+  transition: all .18s; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.9); }
+.nav-item.active { background: var(--accent); color: #fff; }
+.nav-item .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-footer {
+  padding: 12px 14px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.user-info {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px; border-radius: 10px;
+  cursor: pointer; transition: background .2s;
+}
+.user-info:hover { background: rgba(255,255,255,.07); }
+.user-avatar {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: .88rem; flex-shrink: 0;
+}
+.user-name { font-size: .82rem; color: rgba(255,255,255,.8); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-email { font-size: .72rem; color: rgba(255,255,255,.35); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── MAIN ─────────────────────────────── */
+.main-content {
+  margin-left: 220px;
+  min-height: 100vh;
+  transition: margin .3s;
+}
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(245,247,251,.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 56px;
+  display: flex; align-items: center; gap: 12px;
+}
+.topbar-hamburger {
+  display: none; background: none; border: none; cursor: pointer;
+  color: var(--text2); font-size: 1.3rem; padding: 4px;
+}
+.topbar-title {
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.05rem;
+  color: var(--text);
+}
+.topbar-actions { margin-left: auto; display: flex; gap: 8px; }
+.btn-icon-top {
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text2); width: 36px; height: 36px; border-radius: 9px;
+  cursor: pointer; font-size: 1rem; transition: all .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-icon-top:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── PAGES ─────────────────────────────── */
+.page { display: none; padding: 24px; max-width: 1100px; }
+.page.active { display: block; }
+.page-hd {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 24px; gap: 12px; flex-wrap: wrap;
+}
+.page-hd h1 { font-weight: 800; font-size: 1.7rem; letter-spacing: -.02em; color: var(--navy); }
+.page-hd p { color: var(--text2); font-size: .9rem; margin-top: 2px; }
+.page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── BUTTONS ─────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border-radius: 10px; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-weight: 600; font-size: .9rem;
+  border: none; transition: all .18s; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 3px 12px rgba(240,90,36,.3); }
+.btn-primary:hover { background: #d94e1e; transform: translateY(-1px); }
+.btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+.btn-navy { background: var(--navy); color: #fff; }
+.btn-navy:hover { background: var(--navy2); }
+.btn-teal { background: var(--teal); color: #fff; }
+.btn-teal:hover { background: #009c8a; }
+.btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(239,68,68,.35); }
+.btn-danger:hover { background: var(--red); color: #fff; }
+.btn-sm { padding: 6px 12px; font-size: .82rem; border-radius: 8px; }
+.btn-lg { padding: 13px 28px; font-size: 1rem; }
+.btn-icon-sm {
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text2); padding: 6px 10px; border-radius: 8px;
+  cursor: pointer; font-size: .85rem; transition: all .15s;
+}
+.btn-icon-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── CARDS ─────────────────────────────── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+  box-shadow: var(--shadow);
+}
+.card-sm { padding: 14px 16px; }
+.section-title {
+  font-weight: 700; font-size: .85rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--text2); margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+
+/* ── INPUTS ─────────────────────────────── */
+.input, .select, .textarea {
+  background: var(--bg); border: 1.5px solid var(--border);
+  color: var(--text); padding: 10px 14px; border-radius: 10px;
+  font-family: 'Outfit', sans-serif; font-size: .92rem; width: 100%;
+  transition: all .18s; outline: none;
+}
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--accent2); background: #fff;
+  box-shadow: 0 0 0 3px rgba(0,48,135,.1);
+}
+.select { cursor: pointer; }
+.input-search {
+  background: var(--card); border: 1.5px solid var(--border);
+  color: var(--text); padding: 9px 14px; border-radius: 10px;
+  font-family: 'Outfit', sans-serif; font-size: .9rem; outline: none;
+  transition: all .18s; width: 100%; max-width: 260px;
+}
+.input-search:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(0,48,135,.08); }
+label.form-label { display: block; font-size: .8rem; font-weight: 600; color: var(--text2); margin-bottom: 5px; }
+
+/* ── GRID LAYOUTS ─────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.grid-config { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+
+/* ── BADGES ─────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: .72rem; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+  white-space: nowrap;
+}
+.badge-M { background: rgba(59,130,246,.12); color: #2563eb; }
+.badge-F { background: rgba(236,72,153,.12); color: #db2777; }
+.badge-A { background: rgba(16,185,129,.12); color: #059669; }
+.badge-level { background: rgba(245,158,11,.12); color: var(--amber); }
+.badge-green { background: rgba(34,197,94,.12); color: var(--green); }
+.badge-red { background: rgba(239,68,68,.12); color: var(--red); }
+.badge-blue { background: rgba(0,48,135,.1); color: var(--accent2); }
+.badge-purple { background: rgba(139,92,246,.12); color: var(--purple); }
+.badge-teal { background: rgba(0,180,160,.12); color: var(--teal); }
+
+/* ═══════════════════════════════════════════
+   CLASSES PAGE
+═══════════════════════════════════════════ */
+.class-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+.class-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl); padding: 20px;
+  cursor: pointer; transition: all .22s; position: relative; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.class-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--class-color, var(--accent));
+}
+.class-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--class-color, var(--accent)); }
+.class-card.selected { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(240,90,36,.15), var(--shadow-lg); }
+.class-card-icon { font-size: 2.2rem; margin-bottom: 12px; }
+.class-card-name { font-weight: 800; font-size: 1.2rem; color: var(--navy); margin-bottom: 4px; }
+.class-card-meta { font-size: .83rem; color: var(--text2); margin-bottom: 12px; }
+.class-card-stats { display: flex; gap: 8px; flex-wrap: wrap; }
+.class-add-card {
+  background: transparent; border: 2px dashed var(--border);
+  border-radius: var(--radius-xl); padding: 20px;
+  cursor: pointer; transition: all .22s; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 140px; color: var(--text3);
+}
+.class-add-card:hover { border-color: var(--accent); color: var(--accent); background: rgba(240,90,36,.04); }
+.class-add-card .add-icon { font-size: 2rem; margin-bottom: 8px; }
+
+/* ═══════════════════════════════════════════
+   ÉLÈVES PAGE
+═══════════════════════════════════════════ */
+.eleve-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px 16px;
+  transition: all .18s; position: relative;
+}
+.eleve-card:hover { border-color: var(--border); box-shadow: var(--shadow); }
+.eleve-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.avatar {
+  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: .95rem;
+}
+.avatar-M { background: rgba(37,99,235,.12); color: #2563eb; }
+.avatar-F { background: rgba(219,39,119,.12); color: #db2777; }
+.avatar-A { background: rgba(5,150,105,.12); color: #059669; }
+.eleve-name { font-weight: 700; font-size: .98rem; color: var(--text); }
+.eleve-sub { font-size: .75rem; color: var(--text3); margin-top: 1px; }
+.stars { color: var(--amber); font-size: .88rem; letter-spacing: .5px; }
+.eleve-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.level-bar {
+  height: 4px; background: var(--bg2); border-radius: 2px; margin-top: 8px; overflow: hidden;
+}
+.level-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--teal), var(--accent)); transition: width .4s; }
+.level-history { font-size: .7rem; color: var(--text3); margin-top: 3px; }
+
+/* ═══════════════════════════════════════════
+   LEÇONS PAGE
+═══════════════════════════════════════════ */
+.lesson-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  transition: all .18s; box-shadow: var(--shadow);
+  margin-bottom: 12px;
+}
+.lesson-header {
+  padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: background .18s;
+  background: linear-gradient(135deg, var(--navy), var(--accent2));
+  color: #fff;
+}
+.lesson-header:hover { filter: brightness(1.08); }
+.lesson-title { font-weight: 700; font-size: 1rem; }
+.lesson-meta { font-size: .78rem; opacity: .7; margin-top: 2px; }
+.lesson-body { padding: 16px 18px; display: none; }
+.lesson-body.open { display: block; }
+
+/* Équipes composées */
+.equipes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.equipe-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.equipe-header {
+  padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.equipe-color-dot {
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+}
+.equipe-name { font-weight: 700; font-size: 1rem; }
+.equipe-body { padding: 10px 14px; }
+.equipe-joueur {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0; border-radius: 6px; cursor: grab;
+  transition: background .12s;
+}
+.equipe-joueur:hover { background: var(--bg2); padding: 5px 6px; }
+.equipe-joueur.dragging { opacity: .35; }
+.joueur-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.joueur-txt { font-size: .88rem; flex: 1; }
+.joueur-lvl { font-size: .73rem; color: var(--text3); font-weight: 600; }
+.equipe-footer { padding: 8px 14px; border-top: 1px solid var(--bg2); display: flex; gap: 5px; flex-wrap: wrap; }
+
+/* Présence des élèves */
+.presence-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px; margin-bottom: 16px;
+}
+.presence-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border: 1.5px solid var(--border);
+  border-radius: 9px; cursor: pointer; transition: all .15s;
+  font-size: .85rem; font-weight: 500;
+}
+.presence-item.present { border-color: var(--green); background: rgba(34,197,94,.07); color: var(--text); }
+.presence-item.absent { border-color: var(--red); background: rgba(239,68,68,.07); color: var(--text3); text-decoration: line-through; }
+.presence-item.blesse { border-color: var(--amber); background: rgba(245,158,11,.07); color: var(--amber); }
+.presence-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-present { background: var(--green); }
+.dot-absent { background: var(--red); }
+.dot-blesse { background: var(--amber); }
+
+/* ═══════════════════════════════════════════
+   MATCH PAGE
+═══════════════════════════════════════════ */
+.match-setup-card {
+  background: var(--navy); border-radius: var(--radius-xl);
+  padding: 28px; color: #fff; margin-bottom: 20px;
+  box-shadow: 0 12px 40px rgba(10,22,40,.25);
+}
+.match-mode-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px; margin: 16px 0;
+}
+.mode-btn {
+  background: var(--bg2); border: 2px solid var(--border);
+  border-radius: 14px; padding: 16px 10px; cursor: pointer; text-align: center;
+  transition: all .18s; color: var(--text2);
+}
+.mode-btn:hover { background: var(--card); border-color: var(--accent2); color: var(--text); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(10,22,40,.1); }
+.mode-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 6px 20px rgba(240,90,36,.4); transform: translateY(-2px); }
+.mode-btn .mode-icon { font-size: 2rem; margin-bottom: 8px; }
+.mode-btn .mode-name { font-weight: 800; font-size: .92rem; }
+.mode-btn .mode-desc { font-size: .73rem; opacity: .7; margin-top: 3px; }
+.mode-config { background: rgba(255,255,255,.05); border-radius: 12px; padding: 16px; margin-top: 12px; }
+.mode-config .mode-config-title { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; opacity: .5; margin-bottom: 10px; }
+.mode-config .input { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.15); color: #fff; }
+.mode-config .input::placeholder { color: rgba(255,255,255,.35); }
+.mode-config .form-label { color: rgba(255,255,255,.6); }
+
+/* Mode config cards (in modal) */
+.mode-config-card {
+  background: linear-gradient(135deg, #f8faff, #eef2ff);
+  border: 2px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+  margin-top: 14px;
+  box-shadow: 0 4px 20px rgba(10,22,40,.07);
+}
+.mode-config-header {
+  background: var(--navy); color: #fff;
+  padding: 12px 18px; font-weight: 700; font-size: .95rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.mode-config-desc {
+  padding: 12px 18px 0;
+  font-size: .82rem; color: var(--text2); line-height: 1.5;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+.mode-config-fields { padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; }
+.mode-field-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.mode-field-badge {
+  font-weight: 800; font-size: .8rem; padding: 6px 10px;
+  border-radius: 8px; white-space: nowrap; flex-shrink: 0; min-width: 52px;
+  text-align: center; border: 1px solid currentColor;
+}
+.mode-example-input { font-size: .88rem; }
+
+/* Score Board */
+.score-board {
+  background: var(--navy); border-radius: var(--radius-xl);
+  padding: 0; overflow: hidden; margin-bottom: 16px;
+  box-shadow: 0 12px 40px rgba(10,22,40,.25);
+}
+.score-top {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 0;
+}
+.score-team-panel { padding: 24px 20px; text-align: center; }
+.score-team-panel:first-child { border-right: 1px solid rgba(255,255,255,.08); }
+.score-team-name {
+  font-family: 'Outfit', sans-serif; font-weight: 800;
+  font-size: 1rem; color: rgba(255,255,255,.7);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.score-num {
+  font-family: 'Outfit', sans-serif; font-weight: 900;
+  font-size: clamp(3.5rem, 10vw, 5.5rem); color: #fff;
+  line-height: 1; margin-bottom: 12px;
+}
+.score-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.score-btn {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  color: #fff; padding: 8px 14px; border-radius: 9px;
+  cursor: pointer; font-weight: 700; font-size: .9rem;
+  transition: all .12s; min-width: 46px;
+  font-family: 'Outfit', sans-serif;
+}
+.score-btn:hover { background: rgba(255,255,255,.2); }
+.score-btn-minus:hover { background: rgba(239,68,68,.35); border-color: transparent; }
+.score-btn.btn-special { background: rgba(240,90,36,.25); border-color: var(--accent); }
+.score-btn.btn-special:hover { background: var(--accent); }
+.score-btn.btn-bingo { background: rgba(139,92,246,.25); border-color: var(--purple); font-size: .78rem; padding: 7px 10px; }
+.score-btn.btn-bingo.done { background: var(--purple); opacity: .55; text-decoration: line-through; }
+.score-btn.btn-bingo:hover:not(.done) { background: var(--purple); }
+.score-shot-actions { display: flex; gap: 6px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+.shot-btn {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.6); padding: 5px 10px; border-radius: 7px;
+  cursor: pointer; font-size: .75rem; font-weight: 600; transition: all .12s;
+}
+.shot-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+/* Center clock */
+.score-center {
+  padding: 20px 10px; text-align: center; min-width: 140px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.score-period { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.4); }
+.score-timer {
+  font-family: 'Outfit', sans-serif; font-weight: 900;
+  font-size: clamp(2rem, 6vw, 3rem); color: var(--accent);
+  letter-spacing: .02em; line-height: 1;
+}
+.score-diff { font-size: .78rem; color: rgba(255,255,255,.4); min-height: 18px; }
+.timer-controls { display: flex; gap: 6px; }
+.btn-timer {
+  background: var(--green); color: #fff; border: none;
+  padding: 9px 14px; border-radius: 9px; cursor: pointer;
+  font-weight: 700; font-size: .85rem; transition: all .18s;
+  font-family: 'Outfit', sans-serif;
+}
+.btn-timer.running { background: var(--amber); }
+.btn-timer-reset {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.7); padding: 9px 12px; border-radius: 9px;
+  cursor: pointer; font-size: .9rem; transition: all .18s;
+}
+.btn-timer-reset:hover { background: rgba(255,255,255,.18); color: #fff; }
+.btn-fin-match {
+  background: rgba(239,68,68,.2); border: 1px solid rgba(239,68,68,.4);
+  color: #fca5a5; padding: 7px 12px; border-radius: 9px;
+  cursor: pointer; font-size: .78rem; font-weight: 600;
+  transition: all .18s; font-family: 'Outfit', sans-serif; margin-top: 4px;
+}
+.btn-fin-match:hover { background: var(--red); color: #fff; border-color: transparent; }
+
+/* Power alert */
+.power-alert {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.35);
+  color: #fde68a; font-size: .85rem; line-height: 1.4;
+  animation: slideIn .3s ease;
+}
+@keyframes slideIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.power-alert strong { display: block; margin-bottom: 2px; }
+
+/* Match tabs */
+.match-subtabs { display: flex; gap: 4px; padding: 14px 20px 0; border-top: 1px solid rgba(255,255,255,.08); }
+.match-subtab {
+  background: rgba(255,255,255,.06); border: 1px solid transparent;
+  color: rgba(255,255,255,.5); padding: 7px 14px; border-radius: 8px;
+  cursor: pointer; font-size: .83rem; font-weight: 600;
+  transition: all .18s; font-family: 'Outfit', sans-serif;
+}
+.match-subtab:hover { background: rgba(255,255,255,.1); color: rgba(255,255,255,.8); }
+.match-subtab.active { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.2); color: #fff; }
+.match-tab-pane { display: none; padding: 16px 20px 20px; }
+.match-tab-pane.active { display: block; }
+
+/* Players panel */
+.players-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.team-players-card {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; overflow: hidden;
+}
+.team-players-header {
+  padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.07);
+  font-weight: 700; font-size: .88rem; color: rgba(255,255,255,.8);
+  display: flex; align-items: center; gap: 8px;
+}
+.player-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,.05);
+  transition: background .12s;
+}
+.player-row:last-child { border-bottom: none; }
+.player-status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.pdot-terrain { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.pdot-banc { background: rgba(255,255,255,.25); }
+.pdot-blesse { background: var(--amber); }
+.player-name { flex: 1; font-size: .88rem; color: rgba(255,255,255,.8); }
+.player-time { font-size: .75rem; color: rgba(255,255,255,.4); }
+.pm-chip {
+  font-size: .78rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 5px; min-width: 34px; text-align: center;
+}
+.pm-pos { background: rgba(34,197,94,.2); color: #86efac; }
+.pm-neg { background: rgba(239,68,68,.2); color: #fca5a5; }
+.pm-zero { background: rgba(255,255,255,.1); color: rgba(255,255,255,.4); }
+.player-toggle-btn {
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(255,255,255,.6); padding: 3px 9px; border-radius: 6px;
+  cursor: pointer; font-size: .72rem; transition: all .15s;
+  font-family: 'Outfit', sans-serif;
+}
+.player-toggle-btn:hover { border-color: var(--teal); color: var(--teal); }
+.player-toggle-btn.on-field { border-color: var(--green); color: var(--green); }
+
+/* Score graph */
+.score-graph-wrap { padding: 10px 0; }
+.score-graph-canvas { width: 100%; height: 140px; display: block; }
+
+/* Stats live */
+.live-stats-grid { display: flex; flex-direction: column; gap: 14px; }
+.live-stats-section { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; }
+.live-team-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-bottom: 2px solid;
+  font-weight: 800; font-size: .85rem; color: #fff;
+  background: rgba(255,255,255,.05);
+}
+.live-team-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.live-stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: rgba(255,255,255,.06);
+}
+.live-stat-card {
+  background: rgba(10,22,40,.6);
+  padding: 12px 8px; text-align: center;
+}
+.live-stat-card.live-stat-accent { background: rgba(255,255,255,.07); }
+.live-stat-val { font-weight: 900; font-size: 1.4rem; color: #fff; line-height: 1; margin-bottom: 3px; }
+.live-stat-label { font-size: .68rem; color: rgba(255,255,255,.4); line-height: 1.3; }
+.live-graph-section {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; overflow: hidden; padding: 10px 14px 14px;
+}
+.live-graph-title { font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
+@media (max-width: 480px) {
+  .live-stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Classement des équipes */
+.classement-table {
+  width: 100%; border-collapse: collapse; margin-top: 12px;
+  background: var(--card); border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.classement-table th, .classement-table td {
+  padding: 10px 14px; text-align: left; font-size: .85rem;
+  border-bottom: 1px solid var(--border);
+}
+.classement-table th { background: var(--bg2); font-weight: 700; color: var(--text2); font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; }
+.classement-table tr:last-child td { border-bottom: none; }
+.classement-table .rank-num { font-weight: 800; color: var(--navy); width: 32px; }
+
+/* ═══════════════════════════════════════════
+   GESTION / ROTATIONS PAGE
+═══════════════════════════════════════════ */
+.espaces-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px; margin-bottom: 20px;
+}
+.espace-card {
+  background: var(--card); border: 2px dashed var(--border);
+  border-radius: var(--radius-xl); padding: 20px; text-align: center;
+  transition: all .2s; min-height: 150px;
+}
+.espace-card.terrain { border-color: var(--accent2); border-style: solid; }
+.espace-card.arbitrage { border-color: var(--amber); }
+.espace-card.apprentissage { border-color: var(--purple); }
+.espace-icon { font-size: 2.2rem; margin-bottom: 8px; }
+.espace-label {
+  font-weight: 800; font-size: .8rem; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--text2); margin-bottom: 10px;
+}
+.espace-equipes { display: flex; flex-direction: column; gap: 6px; }
+.espace-equipe-tag {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 10px;
+  font-size: .85rem; font-weight: 600; color: var(--text);
+  cursor: grab;
+}
+.espace-equipe-tag:hover { border-color: var(--accent2); }
+.espace-equipe-tag.dragging { opacity: .3; }
+.espace-no-team { font-size: .82rem; color: var(--text3); }
+
+/* Feuille de route */
+.fdr-table {
+  width: 100%; border-collapse: collapse;
+  background: var(--card); border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.fdr-table th, .fdr-table td {
+  padding: 10px 16px; text-align: center;
+  border-bottom: 1px solid var(--border); font-size: .85rem;
+}
+.fdr-table th { background: var(--navy); color: rgba(255,255,255,.8); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; }
+.fdr-row.current { background: rgba(240,90,36,.08); box-shadow: inset 3px 0 0 var(--accent); }
+.fdr-row.current td { font-weight: 700; color: var(--accent); }
+.fdr-row td:first-child { font-weight: 700; text-align: left; }
+
+/* ═══════════════════════════════════════════
+   STATS PAGE
+═══════════════════════════════════════════ */
+.stat-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.stat-row:hover { background: var(--bg2); }
+.stat-row:last-child { border-bottom: none; }
+.stat-rank {
+  font-weight: 800; font-size: 1.1rem; color: var(--text3);
+  width: 28px; flex-shrink: 0;
+}
+.stat-avatar { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; }
+.stat-name { flex: 1; font-weight: 600; font-size: .92rem; }
+.stat-vals { display: flex; gap: 16px; }
+.stat-val { text-align: center; min-width: 50px; }
+.stat-val-num { font-weight: 700; font-size: .95rem; color: var(--text); }
+.stat-val-label { font-size: .68rem; color: var(--text3); }
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(10,22,40,.6); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); width: 100%; max-width: 560px;
+  max-height: 90vh; overflow-y: auto;
+  animation: modalIn .22s ease;
+  box-shadow: 0 24px 80px rgba(10,22,40,.3);
+}
+@keyframes modalIn { from { opacity:0; scale:.96; } to { opacity:1; scale:1; } }
+.modal-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 14px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--card); border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+.modal-hd h3 { font-weight: 800; font-size: 1.1rem; }
+.modal-close {
+  background: var(--bg2); border: none; color: var(--text2);
+  width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+  font-size: .9rem; transition: all .15s;
+}
+.modal-close:hover { background: var(--red); color: #fff; }
+.modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.modal-ft {
+  padding: 14px 20px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; justify-content: flex-end;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: var(--navy); border: 1px solid rgba(255,255,255,.1);
+  color: #fff; padding: 10px 20px; border-radius: 10px;
+  font-size: .88rem; font-weight: 500;
+  transition: transform .3s, opacity .3s; opacity: 0;
+  z-index: 2000; box-shadow: var(--shadow-lg); white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ═══════════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════════ */
+.empty { text-align: center; padding: 60px 20px; color: var(--text2); }
+.empty-icon { font-size: 3.5rem; margin-bottom: 14px; }
+.empty-title { font-weight: 800; font-size: 1.3rem; color: var(--text); margin-bottom: 6px; }
+.empty-desc { font-size: .9rem; margin-bottom: 20px; }
+
+/* ═══════════════════════════════════════════
+   LEÇON — classement & confrontations
+═══════════════════════════════════════════ */
+.lecon-section-title {
+  font-weight: 800; font-size: .82rem; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--text2); margin-bottom: 10px;
+  padding-bottom: 6px; border-bottom: 2px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.lecon-classement-table {
+  width: 100%; border-collapse: collapse; font-size: .85rem;
+  background: var(--card); border-radius: 10px; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.lecon-classement-table th {
+  background: var(--navy); color: rgba(255,255,255,.7);
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+  padding: 8px 12px; text-align: center; font-weight: 700;
+}
+.lecon-classement-table th:nth-child(2) { text-align: left; }
+.lecon-classement-table td {
+  padding: 9px 12px; text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.lecon-classement-table td:nth-child(2) { text-align: left; }
+.lecon-classement-table tr:last-child td { border-bottom: none; }
+.lecon-rank-1 td { background: rgba(245,158,11,.06); }
+.lecon-rank-2 td { background: rgba(148,163,184,.05); }
+.lecon-rank-3 td { background: rgba(180,120,60,.04); }
+.lecon-team-dot {
+  display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+  margin-right: 6px; flex-shrink: 0;
+}
+
+.lecon-confrontation {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px;
+  box-shadow: var(--shadow);
+}
+.lecon-conf-team {
+  display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: .88rem;
+}
+.lecon-conf-team.conf-team-right { justify-content: flex-end; }
+.lecon-conf-team.conf-winner .conf-team-name { color: var(--green); font-weight: 800; }
+.lecon-conf-score {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--navy); border-radius: 8px; padding: 6px 12px;
+  white-space: nowrap;
+}
+.lecon-conf-score span { color: rgba(255,255,255,.8); font-weight: 800; font-size: .95rem; }
+.lecon-conf-score .conf-vs { color: rgba(255,255,255,.3); font-weight: 400; }
+.lecon-conf-score .conf-score-win { color: #fff; font-size: 1.1rem; }
+.lecon-conf-score .conf-mode { font-size: 1rem; margin-left: 4px; }
+.lecon-conf-score .conf-time { font-size: .68rem; color: rgba(255,255,255,.35); font-weight: 400; margin-left: 2px; }
+
+@media (max-width:500px) {
+  .lecon-confrontation { grid-template-columns: 1fr; gap: 4px; }
+  .lecon-conf-team.conf-team-right { justify-content: flex-start; }
+}
+
+/* ═══════════════════════════════════════════
+   STATS PAGE — mode-aware
+═══════════════════════════════════════════ */
+.stats-table-header {
+  display: grid;
+  grid-template-columns: 36px 40px 1fr 90px 70px 70px 70px 70px 20px;
+  gap: 0; padding: 10px 16px;
+  background: var(--navy); border-radius: 10px 10px 0 0;
+  font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  color: rgba(255,255,255,.5); letter-spacing: .05em;
+}
+.stat-eleve-block { border-bottom: 1px solid var(--border); }
+.stat-eleve-block:last-child { border-bottom: none; }
+.stat-summary-row {
+  display: grid;
+  grid-template-columns: 36px 40px 1fr 90px 70px 70px 70px 70px 20px;
+  gap: 0; padding: 10px 16px; align-items: center;
+  transition: background .12s;
+}
+.stat-summary-row:hover { background: var(--bg2); }
+.stat-rank { font-weight: 800; font-size: 1rem; color: var(--text3); }
+.stat-name-block { display: flex; flex-direction: column; gap: 2px; }
+.stat-fullname { font-weight: 700; font-size: .92rem; }
+.stat-mode-pills { display: flex; gap: 3px; }
+.stat-col { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.stat-col-val { font-weight: 800; font-size: .95rem; }
+.stat-col-lbl { font-size: .65rem; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; }
+.stat-expand-icon { color: var(--text3); font-size: .85rem; text-align: center; transition: transform .2s; }
+
+/* Detail panel */
+.stat-detail-panel { background: var(--bg2); border-top: 1px solid var(--border); }
+.stat-detail-inner { padding: 12px 16px 14px; }
+.stat-detail-note {
+  font-size: .78rem; color: var(--text2); background: rgba(245,158,11,.1);
+  border: 1px solid rgba(245,158,11,.25); border-radius: 8px;
+  padding: 8px 12px; margin-bottom: 12px; line-height: 1.5;
+}
+.stat-mode-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0; border-bottom: 1px dashed var(--border);
+  flex-wrap: wrap;
+}
+.stat-mode-row:last-child { border-bottom: none; }
+.stat-mode-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .78rem; font-weight: 700; padding: 4px 10px;
+  border-radius: 20px; border: 1px solid; white-space: nowrap;
+  min-width: 100px; justify-content: center; flex-shrink: 0;
+}
+.stat-mode-vals { display: flex; gap: 14px; flex-wrap: wrap; }
+.stat-mode-val { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 52px; }
+.smv-num { font-weight: 800; font-size: .9rem; }
+.smv-lbl { font-size: .62rem; color: var(--text3); text-transform: uppercase; letter-spacing: .03em; }
+
+@media (max-width: 700px) {
+  .stats-table-header,
+  .stat-summary-row {
+    grid-template-columns: 28px 34px 1fr 72px 56px 20px;
+  }
+  .stats-table-header span:nth-child(6),
+  .stats-table-header span:nth-child(7),
+  .stat-summary-row .stat-col:nth-child(6),
+  .stat-summary-row .stat-col:nth-child(7) { display: none; }
+}
+
+/* ── OVERLAY MOBILE ─────────────────────── */
+.sidebar-overlay { display: none; position: fixed; inset: 0; z-index: 199; background: rgba(0,0,0,.45); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .main-content { margin-left: 0; }
+  .topbar-hamburger { display: flex; }
+  .grid-2, .form-row { grid-template-columns: 1fr; }
+  .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; }
+  .players-split { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .page { padding: 14px; }
+  .topbar { padding: 0 14px; }
+  .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .score-top { grid-template-columns: 1fr; }
+  .score-team-panel:first-child { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .score-center { order: -1; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .match-mode-grid { grid-template-columns: 1fr 1fr; }
+  .score-num { font-size: 3rem; }
+}
+
+/* Misc utility */
+.sep { height: 1px; background: var(--border); margin: 16px 0; }
+.flex { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.flex-1 { flex: 1; }
+.mb-8 { margin-bottom: 8px; }
+.mb-14 { margin-bottom: 14px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-8 { margin-top: 8px; }
+.text-sm { font-size: .85rem; color: var(--text2); }
+.text-muted { color: var(--text3); }
+.fw-700 { font-weight: 700; }
+.color-green { color: var(--green); }
+.color-red { color: var(--red); }
+.color-amber { color: var(--amber); }
+.input-select-native {
+  background: var(--bg); border: 1.5px solid var(--border);
+  color: var(--text); padding: 10px 14px; border-radius: 10px;
+  font-family: 'Outfit', sans-serif; font-size: .92rem;
+  cursor: pointer; outline: none; transition: all .18s;
+}
+.input-select-native:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(0,48,135,.1); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     AUTH SCREEN
+═══════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">🏀</div>
+    <div class="auth-title">ÉPS<span>Manager</span></div>
+    <div class="auth-sub">Gestion d'équipes sportives pour enseignants EPS</div>
+
+    <div id="auth-error" class="auth-error"></div>
+
+    <div id="auth-login-form">
+      <input type="email" id="auth-email" class="auth-input" placeholder="Email">
+      <input type="password" id="auth-password" class="auth-input" placeholder="Mot de passe">
+      <button class="auth-btn-primary" onclick="loginEmail()">Se connecter</button>
+      <div class="auth-divider"><span>ou</span></div>
+      <button class="auth-btn-google" onclick="loginGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.3 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.3 13.2 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.6 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.5 2.9-2.2 5.4-4.7 7l7.2 5.6c4.2-3.9 6.6-9.6 6.6-16.6z"/><path fill="#FBBC05" d="M10.6 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.2.7-4.6L2.3 13.3A24 24 0 0 0 0 24c0 3.8.9 7.4 2.5 10.6l8.1-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2.2 1.5-5 2.4-8.7 2.4-6.3 0-11.7-4.3-13.6-10.1l-8 6.2C6.6 42.6 14.6 48 24 48z"/></svg>
+        Continuer avec Google
+      </button>
+      <div class="auth-toggle">Pas encore de compte ? <span onclick="switchAuthMode()">Créer un compte</span></div>
+    </div>
+
+    <div id="auth-register-form" style="display:none">
+      <input type="text" id="auth-name" class="auth-input" placeholder="Prénom Nom">
+      <input type="email" id="auth-reg-email" class="auth-input" placeholder="Email">
+      <input type="password" id="auth-reg-password" class="auth-input" placeholder="Mot de passe (6 car. min)">
+      <button class="auth-btn-primary" onclick="registerEmail()">Créer mon compte</button>
+      <div class="auth-divider"><span>ou</span></div>
+      <button class="auth-btn-google" onclick="loginGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.3 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.3 13.2 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.6 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.5 2.9-2.2 5.4-4.7 7l7.2 5.6c4.2-3.9 6.6-9.6 6.6-16.6z"/><path fill="#FBBC05" d="M10.6 28.6A14.8 14.8 0 0 1 9.5 24c0-1.6.3-3.2.7-4.6L2.3 13.3A24 24 0 0 0 0 24c0 3.8.9 7.4 2.5 10.6l8.1-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2.2 1.5-5 2.4-8.7 2.4-6.3 0-11.7-4.3-13.6-10.1l-8 6.2C6.6 42.6 14.6 48 24 48z"/></svg>
+        Continuer avec Google
+      </button>
+      <div class="auth-toggle">Déjà un compte ? <span onclick="switchAuthMode()">Se connecter</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP
+═══════════════════════════════════════ -->
+<div id="app">
+
+  <!-- Sidebar -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">🏀</div>
+        ÉPS<span>Mgr</span>
+      </div>
+    </div>
+    <div class="class-selector">
+      <label>Classe active</label>
+      <select class="class-select" id="nav-class-select" onchange="switchClass(this.value)">
+        <option value="">— Aucune classe —</option>
+      </select>
+    </div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Principal</div>
+        <button class="nav-item active" onclick="showPage('page-classes')" id="nav-classes">
+          <span class="nav-icon">🏫</span> Mes classes
+        </button>
+        <button class="nav-item" onclick="showPage('page-eleves')" id="nav-eleves">
+          <span class="nav-icon">👥</span> Élèves
+        </button>
+        <button class="nav-item" onclick="showPage('page-lecons')" id="nav-lecons">
+          <span class="nav-icon">📋</span> Leçons
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Match</div>
+        <button class="nav-item" onclick="showPage('page-match')" id="nav-match">
+          <span class="nav-icon">⏱</span> Match en direct
+        </button>
+        <button class="nav-item" onclick="showPage('page-gestion')" id="nav-gestion">
+          <span class="nav-icon">🔄</span> Gestion rotations
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Données</div>
+        <button class="nav-item" onclick="showPage('page-stats')" id="nav-stats">
+          <span class="nav-icon">📊</span> Statistiques
+        </button>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-info" onclick="logout()">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div>
+          <div class="user-name" id="user-name">Enseignant</div>
+          <div class="user-email" id="user-email">— Déconnexion —</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="topbar">
+      <button class="topbar-hamburger" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbar-title">Mes classes</div>
+      <div class="topbar-actions">
+        <button class="btn-icon-top" onclick="exportData()" title="Exporter">⤓</button>
+        <button class="btn-icon-top" onclick="importDataClick()" title="Importer">⤒</button>
+        <input type="file" id="importFile" accept=".json,.csv,.pdf" style="display:none" onchange="handleImport(event)">
+      </div>
+    </div>
+
+    <!-- ══ PAGE CLASSES ══ -->
+    <div id="page-classes" class="page active">
+      <div class="page-hd">
+        <div>
+          <h1>🏫 Mes classes</h1>
+          <p>Gérez vos classes et partagez-les avec vos collègues</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openNewClass()">+ Nouvelle classe</button>
+        </div>
+      </div>
+      <div class="class-cards-grid" id="classes-grid"></div>
+      <div class="card" style="margin-top:8px">
+        <div class="section-title">🎮 Démonstration</div>
+        <div class="flex" style="gap:12px;flex-wrap:wrap;align-items:center">
+          <div class="text-sm" style="flex:1">Pas encore de données ? Chargez une classe fictive pour explorer toutes les fonctionnalités.</div>
+          <button class="btn btn-secondary" onclick="loadDemo()">Charger la démo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE ÉLÈVES ══ -->
+    <div id="page-eleves" class="page">
+      <div class="page-hd">
+        <div>
+          <h1>👥 Élèves</h1>
+          <p id="eleves-class-name">Sélectionnez une classe</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm" onclick="importCSV()">📄 Importer CSV/PDF</button>
+          <button class="btn btn-primary" onclick="openAddEleve()">+ Ajouter</button>
+        </div>
+      </div>
+      <div class="flex mb-14" style="gap:10px;flex-wrap:wrap">
+        <input type="text" id="search-eleve" class="input-search" placeholder="🔍 Rechercher…" oninput="renderEleves()">
+        <select class="input-select-native" id="filter-sexe" onchange="renderEleves()" style="width:auto">
+          <option value="">Tous genres</option>
+          <option value="M">Garçons</option>
+          <option value="F">Filles</option>
+          <option value="A">Autres</option>
+        </select>
+        <select class="input-select-native" id="filter-niveau" onchange="renderEleves()" style="width:auto">
+          <option value="">Tous niveaux</option>
+          <option value="1">Niv. 1</option><option value="2">Niv. 2</option>
+          <option value="3">Niv. 3</option><option value="4">Niv. 4</option><option value="5">Niv. 5</option>
+        </select>
+      </div>
+      <div class="grid-auto" id="eleves-grid"></div>
+    </div>
+
+    <!-- ══ PAGE LEÇONS ══ -->
+    <div id="page-lecons" class="page">
+      <div class="page-hd">
+        <div>
+          <h1>📋 Leçons</h1>
+          <p id="lecons-class-name">Historique des séances et groupements</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-primary" onclick="openNewLecon()">+ Nouvelle leçon</button>
+        </div>
+      </div>
+      <div id="lecons-list"></div>
+    </div>
+
+    <!-- ══ PAGE MATCH ══ -->
+    <div id="page-match" class="page">
+      <div class="page-hd">
+        <div><h1>⏱ Match en direct</h1><p>Arbitrage, score et statistiques temps réel</p></div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openMatchConfig()">⚙️ Configurer</button>
+        </div>
+      </div>
+
+      <div id="match-no-config" class="empty">
+        <div class="empty-icon">🏟️</div>
+        <div class="empty-title">Aucun match configuré</div>
+        <div class="empty-desc">Créez d'abord une leçon avec des équipes, puis configurez le match.</div>
+        <button class="btn btn-primary" onclick="openMatchConfig()">Configurer un match</button>
+      </div>
+
+      <div id="match-board" style="display:none">
+        <!-- Score board -->
+        <div class="score-board mb-14">
+          <div class="score-top">
+            <!-- Équipe A -->
+            <div class="score-team-panel" id="panel-score-a">
+              <div class="score-team-name" id="score-name-a">—</div>
+              <div class="score-num" id="score-a">0</div>
+              <div class="score-btns" id="score-btns-a"></div>
+              <div class="score-shot-actions">
+                <button class="shot-btn" onclick="addShot('a',false)">🎯 Tir tenté</button>
+                <button class="shot-btn" onclick="addTurnover('a')">🔄 Perte balle</button>
+              </div>
+            </div>
+            <!-- Center -->
+            <div class="score-center">
+              <div class="score-period" id="match-period">PÉRIODE 1</div>
+              <div class="score-timer" id="match-timer">00:00</div>
+              <div class="score-diff" id="match-ecart"></div>
+              <div class="timer-controls" style="margin-top:6px">
+                <button class="btn-timer" id="btn-start-stop" onclick="toggleTimer()">▶ Démarrer</button>
+                <button class="btn-timer-reset" onclick="resetTimer()" title="Reset">↺</button>
+                <button class="btn-timer-reset" onclick="nextPeriode()" title="Période suivante">▷▷</button>
+              </div>
+              <button class="btn-fin-match" onclick="finMatch()" style="margin-top:8px">⬛ Fin du match</button>
+            </div>
+            <!-- Équipe B -->
+            <div class="score-team-panel" id="panel-score-b">
+              <div class="score-team-name" id="score-name-b">—</div>
+              <div class="score-num" id="score-b">0</div>
+              <div class="score-btns" id="score-btns-b"></div>
+              <div class="score-shot-actions">
+                <button class="shot-btn" onclick="addShot('b',false)">🎯 Tir tenté</button>
+                <button class="shot-btn" onclick="addTurnover('b')">🔄 Perte balle</button>
+              </div>
+            </div>
+          </div>
+          <!-- Power alerts -->
+          <div id="power-alerts" style="padding:0 16px"></div>
+          <!-- Match sub-tabs -->
+          <div class="match-subtabs">
+            <button class="match-subtab active" onclick="showMatchTab('mtab-joueurs')">👥 Joueurs &amp; +/−</button>
+            <button class="match-subtab" onclick="showMatchTab('mtab-live')">📈 Stats live</button>
+            <button class="match-subtab" onclick="showMatchTab('mtab-graph')">📉 Graphique</button>
+          </div>
+          <!-- Joueurs -->
+          <div class="match-tab-pane active" id="mtab-joueurs">
+            <div class="players-split" id="players-split"></div>
+          </div>
+          <!-- Stats live -->
+          <div class="match-tab-pane" id="mtab-live">
+            <div class="live-stats-grid" id="live-stats-grid"></div>
+          </div>
+          <!-- Graphique -->
+          <div class="match-tab-pane" id="mtab-graph">
+            <div class="score-graph-wrap">
+              <canvas id="score-graph" class="score-graph-canvas"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Classement de la leçon -->
+        <div class="card mb-14">
+          <div class="section-title">🏆 Classement de la leçon</div>
+          <div id="classement-table-wrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE GESTION ROTATIONS ══ -->
+    <div id="page-gestion" class="page">
+      <div class="page-hd">
+        <div><h1>🔄 Gestion des rotations</h1><p>Espaces de jeu, arbitrage et apprentissage</p></div>
+        <div class="page-actions">
+          <button class="btn btn-secondary btn-sm" onclick="genererRotation('roulement')">↻ Roulement</button>
+          <button class="btn btn-secondary btn-sm" onclick="genererRotation('inversion')">⇄ Inversion</button>
+          <button class="btn btn-primary btn-sm" onclick="ajouterRotationFdr()">+ Rotation</button>
+        </div>
+      </div>
+      <!-- Config espaces -->
+      <div class="card mb-14">
+        <div class="section-title">⚙️ Configuration des espaces</div>
+        <div class="grid-config mb-14">
+          <div><label class="form-label">Terrains disponibles</label>
+            <input type="number" id="nb-terrains" class="input" value="2" min="1" max="6" oninput="renderEspaces()"></div>
+          <div><label class="form-label">Durée rotation (min)</label>
+            <input type="number" id="duree-rotation" class="input" value="8" min="1"></div>
+        </div>
+        <div class="flex" style="gap:10px;flex-wrap:wrap">
+          <label class="flex" style="gap:6px;align-items:center;cursor:pointer">
+            <input type="checkbox" id="espace-arbitrage" checked onchange="renderEspaces()"> Arbitrage
+          </label>
+          <label class="flex" style="gap:6px;align-items:center;cursor:pointer">
+            <input type="checkbox" id="espace-apprentissage" checked onchange="renderEspaces()"> Apprentissage
+          </label>
+        </div>
+      </div>
+      <!-- Espaces visuels -->
+      <div class="espaces-grid" id="espaces-grid"></div>
+      <!-- Feuille de route -->
+      <div class="card">
+        <div class="section-title">📋 Feuille de route</div>
+        <div id="fdr-wrap" class="mb-14"></div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE STATS ══ -->
+    <div id="page-stats" class="page">
+      <div class="page-hd">
+        <div><h1>📊 Statistiques</h1><p>Données cumulées de tous les matchs</p></div>
+      </div>
+      <div class="card">
+        <div class="section-title">🏅 Classement général des élèves</div>
+        <div style="overflow-x:auto">
+          <div class="stats-table-header">
+            <span>#</span><span></span>
+            <span>Nom &amp; modes joués</span>
+            <span title="+/− en nombre de paniers, comparable entre tous les modes">+/− paniers</span>
+            <span>Victoires</span>
+            <span>Minutes</span>
+            <span title="% tir de l'équipe pendant la présence terrain">% Équipe</span>
+            <span>Niveau</span>
+            <span></span>
+          </div>
+          <div id="stats-list" style="background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;overflow:hidden"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════
+     MODALS
+═══════════════════════════════════════ -->
+<!-- Modal Nouvelle Classe -->
+<div id="modal-new-class" class="modal-overlay" onclick="closeModalOut(event,'modal-new-class')">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3 id="class-modal-title">Nouvelle classe</h3>
+      <button class="modal-close" onclick="closeModal('modal-new-class')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="class-editing-id">
+      <div><label class="form-label">Nom de la classe *</label>
+        <input type="text" id="class-name-input" class="input" placeholder="ex: 5ème A, 3ème Sport-étude…"></div>
+      <div><label class="form-label">Sport principal</label>
+        <input type="text" id="class-sport" class="input" placeholder="ex: Basketball, Handball…" value="Basketball"></div>
+      <div><label class="form-label">Année scolaire</label>
+        <input type="text" id="class-annee" class="input" placeholder="ex: 2025-2026" value="2025-2026"></div>
+      <div><label class="form-label">Partager avec (emails, séparés par virgules)</label>
+        <input type="text" id="class-share" class="input" placeholder="collegue@lycee.fr, autre@lycee.fr"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-new-class')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveClass()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Élève -->
+<div id="modal-eleve" class="modal-overlay" onclick="closeModalOut(event,'modal-eleve')">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3 id="eleve-modal-title">Ajouter un élève</h3>
+      <button class="modal-close" onclick="closeModal('modal-eleve')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="eleve-editing-id">
+      <div class="form-row">
+        <div><label class="form-label">Prénom *</label>
+          <input type="text" id="eleve-prenom" class="input" placeholder="Lucas"></div>
+        <div><label class="form-label">Nom *</label>
+          <input type="text" id="eleve-nom" class="input" placeholder="Martin"></div>
+      </div>
+      <div class="form-row">
+        <div><label class="form-label">Genre</label>
+          <select id="eleve-sexe" class="select">
+            <option value="M">♂ Garçon</option>
+            <option value="F">♀ Fille</option>
+            <option value="A">⚧ Autre</option>
+          </select></div>
+        <div><label class="form-label">Niveau initial (1-5)</label>
+          <input type="range" id="eleve-niveau" min="1" max="5" value="3" oninput="updateNiveauDisplay()" style="width:100%;margin-top:8px;accent-color:var(--accent)">
+          <div id="niveau-display" style="text-align:center;font-weight:700;font-size:.85rem;color:var(--amber);margin-top:4px">Niveau 3</div>
+        </div>
+      </div>
+      <div><label class="form-label">Affinités (prénoms séparés par virgules)</label>
+        <input type="text" id="eleve-affinites" class="input" placeholder="Emma, Hugo"></div>
+      <div><label class="form-label">Incompatibilités</label>
+        <input type="text" id="eleve-incompat" class="input" placeholder="Théo, Lola"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-eleve')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveEleve()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nouvelle Leçon -->
+<div id="modal-new-lecon" class="modal-overlay" onclick="closeModalOut(event,'modal-new-lecon')">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-hd">
+      <h3>Nouvelle leçon</h3>
+      <button class="modal-close" onclick="closeModal('modal-new-lecon')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div><label class="form-label">Titre / numéro de séance</label>
+          <input type="text" id="lecon-titre" class="input" placeholder="Séance 4 — Phase de jeu"></div>
+        <div><label class="form-label">Date</label>
+          <input type="date" id="lecon-date" class="input"></div>
+      </div>
+      <div><label class="form-label">Copier la configuration d'une leçon précédente</label>
+        <select id="lecon-copy-from" class="select">
+          <option value="">— Nouvelle configuration —</option>
+        </select>
+      </div>
+      <div class="sep"></div>
+      <div class="section-title">⚙️ Configuration des équipes</div>
+      <div class="grid-config">
+        <div><label class="form-label">Nombre d'équipes</label>
+          <select id="lecon-nb-equipes" class="select">
+            <option value="2">2 équipes</option>
+            <option value="3">3 équipes</option>
+            <option value="4" selected>4 équipes</option>
+            <option value="5">5 équipes</option>
+            <option value="6">6 équipes</option>
+          </select></div>
+        <div><label class="form-label">Format de jeu</label>
+          <select id="lecon-format" class="select">
+            <option value="3">3 × 3</option>
+            <option value="4" selected>4 × 4</option>
+            <option value="5">5 × 5</option>
+          </select></div>
+        <div><label class="form-label">Type de groupement</label>
+          <select id="lecon-type" class="select">
+            <option value="homo-demixe">Homogène démixé</option>
+            <option value="hetero-demixe">Hétérogène démixé</option>
+            <option value="homo-mixte">Homogène mixte</option>
+            <option value="hetero-mixte" selected>Hétérogène mixte</option>
+          </select></div>
+        <div><label class="form-label">Sport</label>
+          <input type="text" id="lecon-sport" class="input" value="Basketball"></div>
+      </div>
+      <div class="sep"></div>
+      <div class="section-title">👤 Présence des élèves</div>
+      <div style="font-size:.8rem;color:var(--text2);margin-bottom:10px">Cliquez pour changer le statut : Présent → Absent → Blessé</div>
+      <div class="presence-grid" id="modal-presence-grid"></div>
+
+      <div id="modal-equipes-section" style="display:none">
+        <div class="sep"></div>
+        <div class="section-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          🏀 Équipes composées
+          <span style="font-weight:400;font-size:.78rem;color:var(--text3)">— Glissez les élèves d'une équipe à l'autre</span>
+        </div>
+        <div class="equipes-grid" id="modal-equipes-grid"></div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-new-lecon')">Annuler</button>
+      <button class="btn btn-secondary" onclick="genererEquipesLecon()">⚡ Générer équipes</button>
+      <button class="btn btn-secondary" onclick="shuffleEquipesLecon()" id="btn-remelanger" style="display:none">🔀 Remélanger</button>
+      <button class="btn btn-primary" onclick="saveLecon()">Enregistrer leçon</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Config Match -->
+<div id="modal-match-config" class="modal-overlay" onclick="closeModalOut(event,'modal-match-config')">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-hd">
+      <h3>⚙️ Configuration du match</h3>
+      <button class="modal-close" onclick="closeModal('modal-match-config')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div><label class="form-label">Leçon</label>
+          <select id="match-lecon-sel" class="select" onchange="updateMatchTeamOptions()"></select></div>
+        <div></div>
+      </div>
+      <div class="form-row">
+        <div><label class="form-label">Équipe A</label>
+          <select id="match-equipe-a" class="select"></select></div>
+        <div><label class="form-label">Équipe B</label>
+          <select id="match-equipe-b" class="select"></select></div>
+      </div>
+      <div class="form-row">
+        <div><label class="form-label">Durée d'une période (min)</label>
+          <input type="number" id="match-duree" class="input" value="8" min="1"></div>
+        <div><label class="form-label">Nombre de périodes</label>
+          <input type="number" id="match-periodes" class="input" value="2" min="1"></div>
+      </div>
+      <!-- Mode de scoring -->
+      <div><label class="form-label" style="margin-bottom:10px;display:block">Mode de scoring</label>
+        <div class="match-mode-grid" id="mode-selector">
+          <div class="mode-btn active" data-mode="classique" onclick="selectMode('classique')">
+            <div class="mode-icon">🏀</div>
+            <div class="mode-name">Classique</div>
+            <div class="mode-desc">1, 2 ou 3 pts</div>
+          </div>
+          <div class="mode-btn" data-mode="bonifier" onclick="selectMode('bonifier')">
+            <div class="mode-icon">⭐</div>
+            <div class="mode-name">Bonifier</div>
+            <div class="mode-desc">1 / 10 / 100 pts</div>
+          </div>
+          <div class="mode-btn" data-mode="contrat" onclick="selectMode('contrat')">
+            <div class="mode-icon">📝</div>
+            <div class="mode-name">Contrat</div>
+            <div class="mode-desc">Conditions spéciales</div>
+          </div>
+          <div class="mode-btn" data-mode="bingo" onclick="selectMode('bingo')">
+            <div class="mode-icon">🎯</div>
+            <div class="mode-name">Bingo</div>
+            <div class="mode-desc">3 contrats à réaliser</div>
+          </div>
+          <div class="mode-btn" data-mode="evolutive" onclick="selectMode('evolutive')">
+            <div class="mode-icon">⚡</div>
+            <div class="mode-name">Évolutive</div>
+            <div class="mode-desc">Règles selon l'écart</div>
+          </div>
+        </div>
+      </div>
+      <!-- Mode-specific config -->
+      <div id="mode-config-area"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn btn-secondary" onclick="closeModal('modal-match-config')">Annuler</button>
+      <button class="btn btn-primary" onclick="startMatch()">Lancer le match</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   ÉPS MANAGER v4 — JavaScript
+═══════════════════════════════════════════════════ */
+
+/* ── CONSTANTS ─────────────────────────────────── */
+const COULEURS = ['#f59e0b','#3b82f6','#10b981','#ef4444','#8b5cf6','#ec4899','#f97316','#06b6d4','#84cc16','#0ea5e9'];
+const CLASS_COLORS = ['#f05a24','#003087','#00b4a0','#8b5cf6','#22c55e','#f59e0b','#ef4444','#0ea5e9'];
+
+/* ── STATE ──────────────────────────────────────── */
+let state = {
+  user: null,
+  classes: [],       // [{id, nom, sport, annee, share:[], couleur}]
+  activeClassId: null,
+  eleves: [],        // [{id, classId, prenom, nom, sexe, niveau, niveauHistory:[], affinites, incompatibilites, stats:{matchsGagnes, pmTotal, minutesJouees, tirsReussis, tirsTentes}}]
+  lecons: [],        // [{id, classId, titre, date, config:{nbEq,format,type,sport}, equipes:[{id,nom,couleur,joueurs:[eleveId]}], presence:{[eleveId]:'present'|'absent'|'blesse'}, matchs:[]}]
+  match: {
+    actif: false,
+    leconId: null,
+    equipeAId: null,
+    equipeBId: null,
+    scoreA: 0, scoreB: 0,
+    shotsA: 0, shotsB: 0, madeA: 0, madeB: 0,
+    turnoversA: 0, turnoversB: 0,
+    duree: 8, nbPeriodes: 2, periodeActuelle: 1,
+    timerRunning: false, timerSeconds: 0,
+    mode: 'classique',
+    modeConfig: {},   // mode-specific settings
+    joueurStats: {},  // {eleveId: {terrain,totalSec,pmPoints,points,tirsReussis,tirsTentes}}
+    scoreHistory: [], // [{t, a, b}]
+    bingosDone: {a:{},b:{}}, // bingo[team][bingoIndex]
+    contratsRealises: {a:false, b:false},
+  },
+  gestion: {
+    espaces: [],  // [{type:'terrain'|'arbitrage'|'apprentissage', equipes:[id]}]
+    fdr: [],      // feuille de route rows [{label, cols:[{equipeId}]}]
+    currentFdrRow: 0,
+  }
+};
+
+let timerInterval = null;
+let editingEleveId = null;
+let modalPresenceState = {}; // {eleveId: 'present'|'absent'|'blesse'}
+let modalEquipes = [];       // equipes temporaires lors de la création de leçon
+let matchMode = 'classique';
+let dragSrc = null;
+
+/* ── AUTH ───────────────────────────────────────── */
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+function loginEmail() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-password').value;
+  if (!email || !pass) { showAuthError('Email et mot de passe requis'); return; }
+  // Simulate auth with localStorage account store
+  const accounts = JSON.parse(localStorage.getItem('eps_accounts') || '{}');
+  if (!accounts[email]) { showAuthError('Compte introuvable. Créez un compte d\'abord.'); return; }
+  if (accounts[email].password !== btoa(pass)) { showAuthError('Mot de passe incorrect'); return; }
+  initApp({ email, name: accounts[email].name, id: email });
+}
+
+function registerEmail() {
+  const name = document.getElementById('auth-name').value.trim();
+  const email = document.getElementById('auth-reg-email').value.trim();
+  const pass = document.getElementById('auth-reg-password').value;
+  if (!name || !email || !pass) { showAuthError('Tous les champs sont obligatoires'); return; }
+  if (pass.length < 6) { showAuthError('Mot de passe trop court (6 caractères min)'); return; }
+  const accounts = JSON.parse(localStorage.getItem('eps_accounts') || '{}');
+  if (accounts[email]) { showAuthError('Un compte existe déjà avec cet email'); return; }
+  accounts[email] = { name, password: btoa(pass) };
+  localStorage.setItem('eps_accounts', JSON.stringify(accounts));
+  initApp({ email, name, id: email });
+}
+
+function loginGoogle() {
+  // Simulate Google auth - in production, integrate Google Identity Services
+  const email = prompt('Email Google (simulation) :');
+  if (!email || !email.includes('@')) return;
+  const name = email.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+  initApp({ email, name, id: email });
+}
+
+function switchAuthMode() {
+  const login = document.getElementById('auth-login-form');
+  const reg = document.getElementById('auth-register-form');
+  login.style.display = login.style.display === 'none' ? 'block' : 'none';
+  reg.style.display = reg.style.display === 'none' ? 'block' : 'none';
+}
+
+function initApp(user) {
+  state.user = user;
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-name').textContent = user.name;
+  document.getElementById('user-email').textContent = user.email;
+  document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+  loadFromStorage();
+  renderClasses();
+  renderNavClassSelect();
+  showPage('page-classes');
+}
+
+function logout() {
+  if (!confirm('Déconnecter ?')) return;
+  saveToStorage();
+  state.user = null;
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+/* Check session */
+window.addEventListener('DOMContentLoaded', () => {
+  const session = localStorage.getItem('eps_session');
+  if (session) {
+    try { const u = JSON.parse(session); if (u.email) { initApp(u); return; } } catch(e) {}
+  }
+  // Auto-date for new leçon
+  const d = document.getElementById('lecon-date');
+  if (d) d.value = new Date().toISOString().split('T')[0];
+});
+
+/* ── SIDEBAR / NAVIGATION ────────────────────────── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+const PAGE_TITLES = {
+  'page-classes': 'Mes classes',
+  'page-eleves': 'Élèves',
+  'page-lecons': 'Leçons',
+  'page-match': 'Match en direct',
+  'page-gestion': 'Gestion des rotations',
+  'page-stats': 'Statistiques',
+};
+
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const el = document.getElementById(pageId);
+  if (el) el.classList.add('active');
+  const navId = 'nav-' + pageId.replace('page-', '');
+  const nav = document.getElementById(navId);
+  if (nav) nav.classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[pageId] || '';
+  closeSidebar();
+
+  if (pageId === 'page-eleves') renderEleves();
+  if (pageId === 'page-lecons') renderLecons();
+  if (pageId === 'page-gestion') renderEspaces();
+  if (pageId === 'page-stats') renderStats();
+  if (pageId === 'page-match') renderMatch();
+}
+
+/* ── STORAGE ─────────────────────────────────────── */
+function storageKey() {
+  return 'eps_state_' + (state.user?.id || 'anon');
+}
+function saveToStorage() {
+  if (state.user) localStorage.setItem('eps_session', JSON.stringify(state.user));
+  const data = {
+    classes: state.classes,
+    eleves: state.eleves,
+    lecons: state.lecons,
+    gestion: state.gestion,
+    activeClassId: state.activeClassId,
+  };
+  localStorage.setItem(storageKey(), JSON.stringify(data));
+}
+function loadFromStorage() {
+  const raw = localStorage.getItem(storageKey());
+  if (!raw) return;
+  try {
+    const d = JSON.parse(raw);
+    state.classes = d.classes || [];
+    state.eleves = d.eleves || [];
+    state.lecons = d.lecons || [];
+    state.gestion = d.gestion || { espaces: [], fdr: [], currentFdrRow: 0 };
+    state.activeClassId = d.activeClassId || null;
+  } catch(e) {}
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'eps_manager_v4.json';
+  a.click(); toast('✓ Données exportées');
+}
+function importDataClick() { document.getElementById('importFile').click(); }
+function handleImport(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    if (file.name.endsWith('.json')) {
+      try {
+        const d = JSON.parse(e.target.result);
+        if (d.classes) state.classes = d.classes;
+        if (d.eleves) state.eleves = d.eleves;
+        if (d.lecons) state.lecons = d.lecons;
+        saveToStorage(); renderClasses(); renderNavClassSelect();
+        toast('✓ JSON importé');
+      } catch { toast('⚠ Fichier JSON invalide'); }
+    } else if (file.name.endsWith('.csv')) {
+      importCSVData(e.target.result);
+    } else {
+      toast('⚠ Format non supporté (JSON ou CSV uniquement)');
+    }
+  };
+  r.readAsText(file);
+  evt.target.value = '';
+}
+function importCSV() { document.getElementById('importFile').click(); }
+function importCSVData(csvText) {
+  if (!state.activeClassId) { toast('⚠ Sélectionnez une classe d\'abord'); return; }
+  const lines = csvText.split('\n').filter(l => l.trim());
+  let imported = 0;
+  lines.forEach((line, i) => {
+    if (i === 0 && line.toLowerCase().includes('prenom')) return; // skip header
+    const parts = line.split(/[,;]/).map(p => p.trim().replace(/^"|"$/g,''));
+    if (parts.length < 2) return;
+    const eleve = {
+      id: uid(), classId: state.activeClassId,
+      prenom: parts[0] || '', nom: parts[1] || '',
+      sexe: parts[2]?.toUpperCase() === 'F' ? 'F' : parts[2]?.toUpperCase() === 'A' ? 'A' : 'M',
+      niveau: Math.min(5, Math.max(1, parseInt(parts[3]) || 3)),
+      niveauHistory: [],
+      affinites: [], incompatibilites: [],
+      stats: { matchsGagnes:0, pmTotal:0, minutesJouees:0, tirsReussis:0, tirsTentes:0 }
+    };
+    if (eleve.prenom) { state.eleves.push(eleve); imported++; }
+  });
+  saveToStorage(); renderEleves();
+  toast(`✓ ${imported} élève(s) importé(s)`);
+}
+
+/* ── TOAST ───────────────────────────────────────── */
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── MODAL ───────────────────────────────────────── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalOut(e, id) { if (e.target.id === id) closeModal(id); }
+
+/* ── UID ─────────────────────────────────────────── */
+function uid() { return Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+
+/* ═══════════════════════════════════════════════════
+   CLASSES
+═══════════════════════════════════════════════════ */
+function renderClasses() {
+  const grid = document.getElementById('classes-grid');
+  if (!grid) return;
+  if (!state.classes.length) {
+    grid.innerHTML = `<div class="class-add-card" onclick="openNewClass()">
+      <div class="add-icon">➕</div>
+      <div style="font-weight:700;margin-bottom:4px">Créer une classe</div>
+      <div style="font-size:.82rem">Commencez par ajouter votre première classe</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = state.classes.map(cl => {
+    const eleves = state.eleves.filter(e => e.classId === cl.id);
+    const lecons = state.lecons.filter(l => l.classId === cl.id);
+    const isActive = cl.id === state.activeClassId;
+    return `<div class="class-card ${isActive?'selected':''}" style="--class-color:${cl.couleur}" onclick="selectClass('${cl.id}')">
+      <div class="class-card-icon">🏫</div>
+      <div class="class-card-name">${cl.nom}</div>
+      <div class="class-card-meta">${cl.sport || 'Sport'} · ${cl.annee || ''}</div>
+      <div class="class-card-stats">
+        <span class="badge badge-blue">${eleves.length} élèves</span>
+        <span class="badge badge-teal">${lecons.length} leçons</span>
+        ${cl.share?.length ? `<span class="badge badge-purple">Partagée</span>` : ''}
+      </div>
+      <div style="display:flex;gap:6px;margin-top:12px">
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();editClass('${cl.id}')">✎ Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteClass('${cl.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('') + `<div class="class-add-card" onclick="openNewClass()">
+    <div class="add-icon">➕</div>
+    <div style="font-weight:700">Nouvelle classe</div>
+  </div>`;
+}
+
+function selectClass(id) {
+  state.activeClassId = id;
+  saveToStorage();
+  renderClasses();
+  renderNavClassSelect();
+  showPage('page-eleves');
+}
+
+function saveClass() {
+  const nom = document.getElementById('class-name-input').value.trim();
+  if (!nom) { toast('⚠ Nom requis'); return; }
+  const editId = document.getElementById('class-editing-id').value;
+  const cl = {
+    id: editId || uid(),
+    nom,
+    sport: document.getElementById('class-sport').value.trim() || 'Basketball',
+    annee: document.getElementById('class-annee').value.trim(),
+    share: document.getElementById('class-share').value.split(',').map(s=>s.trim()).filter(Boolean),
+    couleur: CLASS_COLORS[state.classes.length % CLASS_COLORS.length],
+  };
+  if (editId) {
+    const idx = state.classes.findIndex(c=>c.id===editId);
+    if (idx >= 0) { cl.couleur = state.classes[idx].couleur; state.classes[idx] = cl; }
+  } else {
+    state.classes.push(cl);
+    state.activeClassId = cl.id;
+  }
+  saveToStorage(); renderClasses(); renderNavClassSelect();
+  closeModal('modal-new-class');
+  toast(editId ? '✓ Classe modifiée' : '✓ Classe créée');
+}
+
+function openNewClass() {
+  document.getElementById('class-editing-id').value = '';
+  document.getElementById('class-modal-title').textContent = 'Nouvelle classe';
+  document.getElementById('class-name-input').value = '';
+  document.getElementById('class-sport').value = 'Basketball';
+  document.getElementById('class-annee').value = '2025-2026';
+  document.getElementById('class-share').value = '';
+  openModal('modal-new-class');
+}
+
+function editClass(id) {
+  const cl = state.classes.find(c=>c.id===id);
+  if (!cl) return;
+  document.getElementById('class-editing-id').value = cl.id;
+  document.getElementById('class-modal-title').textContent = 'Modifier la classe';
+  document.getElementById('class-name-input').value = cl.nom;
+  document.getElementById('class-sport').value = cl.sport || '';
+  document.getElementById('class-annee').value = cl.annee || '';
+  document.getElementById('class-share').value = (cl.share||[]).join(', ');
+  openModal('modal-new-class');
+}
+
+function deleteClass(id) {
+  if (!confirm('Supprimer cette classe et toutes ses données ?')) return;
+  state.classes = state.classes.filter(c=>c.id!==id);
+  state.eleves = state.eleves.filter(e=>e.classId!==id);
+  state.lecons = state.lecons.filter(l=>l.classId!==id);
+  if (state.activeClassId === id) state.activeClassId = state.classes[0]?.id || null;
+  saveToStorage(); renderClasses(); renderNavClassSelect(); toast('✓ Classe supprimée');
+}
+
+function renderNavClassSelect() {
+  const sel = document.getElementById('nav-class-select');
+  if (!sel) return;
+  sel.innerHTML = `<option value="">— Aucune classe —</option>` +
+    state.classes.map(cl => `<option value="${cl.id}" ${cl.id===state.activeClassId?'selected':''}>${cl.nom}</option>`).join('');
+}
+
+function switchClass(id) {
+  state.activeClassId = id || null;
+  saveToStorage();
+  renderClasses();
+  if (document.getElementById('page-eleves').classList.contains('active')) renderEleves();
+  if (document.getElementById('page-lecons').classList.contains('active')) renderLecons();
+}
+
+/* ═══════════════════════════════════════════════════
+   ÉLÈVES
+═══════════════════════════════════════════════════ */
+function getActiveEleves() {
+  return state.eleves.filter(e => e.classId === state.activeClassId);
+}
+
+function renderEleves() {
+  const cl = state.classes.find(c=>c.id===state.activeClassId);
+  document.getElementById('eleves-class-name').textContent = cl ? cl.nom : 'Sélectionnez une classe';
+
+  if (!state.activeClassId) {
+    document.getElementById('eleves-grid').innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <div class="empty-icon">🏫</div>
+      <div class="empty-title">Aucune classe sélectionnée</div>
+      <div class="empty-desc">Choisissez une classe dans la barre latérale.</div>
+    </div>`; return;
+  }
+
+  const search = document.getElementById('search-eleve')?.value.toLowerCase() || '';
+  const fSexe = document.getElementById('filter-sexe')?.value || '';
+  const fNiv = document.getElementById('filter-niveau')?.value || '';
+
+  let eleves = getActiveEleves().filter(e => {
+    const n = (e.prenom + ' ' + e.nom).toLowerCase();
+    if (search && !n.includes(search)) return false;
+    if (fSexe && e.sexe !== fSexe) return false;
+    if (fNiv && String(e.niveau) !== fNiv) return false;
+    return true;
+  });
+
+  const grid = document.getElementById('eleves-grid');
+  if (!eleves.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <div class="empty-icon">👤</div>
+      <div class="empty-title">Aucun élève</div>
+      <div class="empty-desc">Ajoutez des élèves ou importez un fichier CSV.</div>
+    </div>`; return;
+  }
+
+  grid.innerHTML = eleves.map(e => {
+    const init = ((e.prenom||'')[0]||'') + ((e.nom||'')[0]||'');
+    const stars = '★'.repeat(Math.round(e.niveau)) + '☆'.repeat(5-Math.round(e.niveau));
+    const barW = (e.niveau/5*100).toFixed(0);
+    const niv = e.niveau.toFixed ? e.niveau.toFixed(1) : e.niveau;
+    const pmSign = (e.stats?.pmTotal||0) >= 0 ? '+' : '';
+    return `<div class="eleve-card">
+      <div class="eleve-top">
+        <div class="avatar avatar-${e.sexe}">${init.toUpperCase()}</div>
+        <div style="flex:1">
+          <div class="eleve-name">${e.prenom} ${e.nom}</div>
+          <div class="stars">${stars}</div>
+          <div class="level-bar"><div class="level-bar-fill" style="width:${barW}%"></div></div>
+          <div class="level-history">Niv. ${niv} · ${pmSign}${e.stats?.pmTotal||0} +/− · ${Math.round((e.stats?.minutesJouees||0))} min</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+        <span class="badge badge-${e.sexe}">${e.sexe==='M'?'♂':e.sexe==='F'?'♀':'⚧'}</span>
+        <span class="badge badge-level">Niv. ${niv}</span>
+        ${(e.stats?.matchsGagnes||0) > 0 ? `<span class="badge badge-green">🏆 ${e.stats.matchsGagnes}V</span>` : ''}
+      </div>
+      ${e.affinites?.length ? `<div style="font-size:.73rem;color:var(--green);margin-bottom:3px">✓ ${e.affinites.join(', ')}</div>` : ''}
+      ${e.incompatibilites?.length ? `<div style="font-size:.73rem;color:var(--red);margin-bottom:3px">✕ ${e.incompatibilites.join(', ')}</div>` : ''}
+      <div class="eleve-actions">
+        <button class="btn btn-secondary btn-sm" onclick="editEleve('${e.id}')">✎ Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEleve('${e.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAddEleve() {
+  if (!state.activeClassId) { toast('⚠ Sélectionnez une classe'); return; }
+  editingEleveId = null;
+  document.getElementById('eleve-modal-title').textContent = 'Ajouter un élève';
+  document.getElementById('eleve-editing-id').value = '';
+  ['eleve-prenom','eleve-nom','eleve-affinites','eleve-incompat'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('eleve-sexe').value = 'M';
+  document.getElementById('eleve-niveau').value = 3;
+  updateNiveauDisplay();
+  openModal('modal-eleve');
+}
+
+function editEleve(id) {
+  const e = state.eleves.find(x=>x.id===id);
+  if (!e) return;
+  editingEleveId = id;
+  document.getElementById('eleve-modal-title').textContent = 'Modifier l\'élève';
+  document.getElementById('eleve-editing-id').value = e.id;
+  document.getElementById('eleve-prenom').value = e.prenom;
+  document.getElementById('eleve-nom').value = e.nom;
+  document.getElementById('eleve-sexe').value = e.sexe;
+  document.getElementById('eleve-niveau').value = e.niveau;
+  document.getElementById('eleve-affinites').value = (e.affinites||[]).join(', ');
+  document.getElementById('eleve-incompat').value = (e.incompatibilites||[]).join(', ');
+  updateNiveauDisplay();
+  openModal('modal-eleve');
+}
+
+function updateNiveauDisplay() {
+  const v = Number(document.getElementById('eleve-niveau').value);
+  const labels = ['', 'Faible (1)', 'Moyen-faible (2)', 'Moyen (3)', 'Bon (4)', 'Excellent (5)'];
+  document.getElementById('niveau-display').textContent = labels[v] || `Niveau ${v}`;
+}
+
+function saveEleve() {
+  const prenom = document.getElementById('eleve-prenom').value.trim();
+  if (!prenom) { toast('⚠ Prénom obligatoire'); return; }
+  const id = editingEleveId || uid();
+  const existing = state.eleves.find(x=>x.id===id) || {};
+  const eleve = {
+    id, classId: state.activeClassId,
+    prenom, nom: document.getElementById('eleve-nom').value.trim(),
+    sexe: document.getElementById('eleve-sexe').value,
+    niveau: Number(document.getElementById('eleve-niveau').value),
+    niveauHistory: existing.niveauHistory || [],
+    affinites: document.getElementById('eleve-affinites').value.split(',').map(s=>s.trim()).filter(Boolean),
+    incompatibilites: document.getElementById('eleve-incompat').value.split(',').map(s=>s.trim()).filter(Boolean),
+    stats: existing.stats || { matchsGagnes:0, pmTotal:0, minutesJouees:0, tirsReussis:0, tirsTentes:0 },
+  };
+  if (editingEleveId) {
+    const idx = state.eleves.findIndex(x=>x.id===editingEleveId);
+    if (idx >= 0) state.eleves[idx] = eleve;
+  } else {
+    state.eleves.push(eleve);
+  }
+  saveToStorage(); closeModal('modal-eleve'); renderEleves();
+  toast(editingEleveId ? '✓ Élève modifié' : '✓ Élève ajouté');
+}
+
+function deleteEleve(id) {
+  if (!confirm('Supprimer cet élève ?')) return;
+  state.eleves = state.eleves.filter(x=>x.id!==id);
+  saveToStorage(); renderEleves(); toast('✓ Élève supprimé');
+}
+
+/* ═══════════════════════════════════════════════════
+   LEÇONS
+═══════════════════════════════════════════════════ */
+function renderLecons() {
+  const cl = state.classes.find(c=>c.id===state.activeClassId);
+  document.getElementById('lecons-class-name').textContent = cl ? `Classe : ${cl.nom}` : 'Sélectionnez une classe';
+
+  const lecons = state.lecons.filter(l=>l.classId===state.activeClassId);
+  const container = document.getElementById('lecons-list');
+
+  if (!state.activeClassId) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🏫</div><div class="empty-title">Aucune classe sélectionnée</div></div>`;
+    return;
+  }
+  if (!lecons.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Aucune leçon</div><div class="empty-desc">Créez votre première leçon pour composer les équipes.</div><button class="btn btn-primary" onclick="openNewLecon()">+ Nouvelle leçon</button></div>`;
+    return;
+  }
+
+  container.innerHTML = lecons.sort((a,b)=>b.date?.localeCompare(a.date)||0).map(l => {
+    const nbEq = l.equipes?.length || 0;
+    const dateStr = l.date ? new Date(l.date).toLocaleDateString('fr-FR', {day:'2-digit',month:'long',year:'numeric'}) : '';
+    return `<div class="lesson-card">
+      <div class="lesson-header" onclick="toggleLecon('${l.id}')">
+        <div>
+          <div class="lesson-title">${l.titre || 'Séance'}</div>
+          <div class="lesson-meta">${dateStr} · ${nbEq} équipes · ${l.config?.type||''} · ${l.config?.sport||''}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="badge badge-blue">${nbEq}×${l.config?.format||4}</span>
+          <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteLecon('${l.id}')">✕</button>
+        </div>
+      </div>
+      <div class="lesson-body" id="lecon-body-${l.id}">
+        <div class="flex mb-14" style="gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="openEditLecon('${l.id}')">✎ Modifier</button>
+          <button class="btn btn-teal btn-sm" onclick="lancerMatchLecon('${l.id}')">▶ Lancer un match</button>
+        </div>
+        <div class="equipes-grid" id="equipes-lecon-${l.id}" style="margin-bottom:18px">
+          ${renderEquipesLecon(l)}
+        </div>
+        ${renderLeconClassement(l)}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderEquipesLecon(l) {
+  if (!l.equipes?.length) return '<div class="text-muted text-sm">Aucune équipe générée</div>';
+  return l.equipes.map(eq => {
+    const joueurs = (eq.joueurs||[]).map(jid => state.eleves.find(e=>e.id===jid)).filter(Boolean);
+    const avgNiv = joueurs.length ? (joueurs.reduce((s,e)=>s+(e.niveau||3),0)/joueurs.length).toFixed(1) : '—';
+    return `<div class="equipe-card">
+      <div class="equipe-header">
+        <div class="flex" style="gap:8px;align-items:center">
+          <div class="equipe-color-dot" style="background:${eq.couleur}"></div>
+          <div class="equipe-name">${eq.nom}</div>
+        </div>
+        <span class="badge badge-level">Niv. ${avgNiv}</span>
+      </div>
+      <div class="equipe-body">
+        ${joueurs.map(e=>`<div class="equipe-joueur" draggable="true" data-eleve="${e.id}" data-equipe="${eq.id}" data-lecon="${l.id}">
+          <div class="joueur-dot" style="background:${e.sexe==='M'?'#2563eb':e.sexe==='F'?'#db2777':'#059669'}"></div>
+          <div class="joueur-txt">${e.prenom} ${e.nom||''}</div>
+          <div class="joueur-lvl">${'★'.repeat(Math.round(e.niveau))}</div>
+        </div>`).join('')}
+      </div>
+      <div class="equipe-footer">
+        <span class="badge badge-teal">${joueurs.length} joueurs</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderLeconClassement(l) {
+  if (!l.matchs || l.matchs.length === 0) return '';
+
+  // Build team standings from all matchs in this lecon
+  const standings = {};
+  l.matchs.forEach(m => {
+    [m.equipeAId, m.equipeBId].forEach(eqId => {
+      if (!standings[eqId]) standings[eqId] = { matchsJoues:0, victoires:0, defaites:0, nuls:0, ptsPour:0, ptsContre:0, paniersPour:0, paniersContre:0 };
+    });
+    const sA = standings[m.equipeAId], sB = standings[m.equipeBId];
+    sA.matchsJoues++; sB.matchsJoues++;
+    sA.ptsPour += m.scoreA || 0; sA.ptsContre += m.scoreB || 0;
+    sB.ptsPour += m.scoreB || 0; sB.ptsContre += m.scoreA || 0;
+    sA.paniersPour += m.madeA || 0; sA.paniersContre += m.madeB || 0;
+    sB.paniersPour += m.madeB || 0; sB.paniersContre += m.madeA || 0;
+    if ((m.scoreA||0) > (m.scoreB||0)) { sA.victoires++; sB.defaites++; }
+    else if ((m.scoreB||0) > (m.scoreA||0)) { sB.victoires++; sA.defaites++; }
+    else { sA.nuls++; sB.nuls++; }
+  });
+
+  const rows = Object.entries(standings)
+    .map(([eqId, s]) => {
+      const eq = l.equipes?.find(e => e.id === eqId);
+      return { eq, s, pts: s.victoires*3 + s.nuls };
+    })
+    .sort((a,b) => b.pts - a.pts || (b.s.ptsPour - b.s.ptsContre) - (a.s.ptsPour - a.s.ptsContre));
+
+  const classementHtml = `
+    <div style="margin-bottom:18px">
+      <div class="lecon-section-title">🏆 Classement de la leçon</div>
+      <div style="overflow-x:auto">
+        <table class="lecon-classement-table">
+          <thead><tr>
+            <th>#</th><th>Équipe</th><th>Pts</th><th>V</th><th>N</th><th>D</th>
+            <th>Marqués</th><th>Encaissés</th><th>Diff.</th>
+          </tr></thead>
+          <tbody>
+            ${rows.map((r,i) => {
+              const diff = (r.s.ptsPour||0) - (r.s.ptsContre||0);
+              return `<tr class="${i===0?'lecon-rank-1':i===1?'lecon-rank-2':i===2?'lecon-rank-3':''}">
+                <td style="font-weight:800">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td>
+                <td><span class="lecon-team-dot" style="background:${r.eq?.couleur||'#888'}"></span>${r.eq?.nom||'?'}</td>
+                <td style="font-weight:800;color:var(--accent2)">${r.pts}</td>
+                <td style="color:var(--green);font-weight:700">${r.s.victoires}</td>
+                <td style="color:var(--text2)">${r.s.nuls}</td>
+                <td style="color:var(--red);font-weight:700">${r.s.defaites}</td>
+                <td>${r.s.ptsPour}</td>
+                <td>${r.s.ptsContre}</td>
+                <td style="font-weight:700;${diff>0?'color:var(--green)':diff<0?'color:var(--red)':''}">${diff>=0?'+':''}${diff}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+
+  // Build confrontations table
+  const confrontHtml = `
+    <div>
+      <div class="lecon-section-title">⚔️ Confrontations</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${l.matchs.map(m => {
+          const eqA = l.equipes?.find(e => e.id === m.equipeAId);
+          const eqB = l.equipes?.find(e => e.id === m.equipeBId);
+          const modeLabel = {classique:'🏀',bonifier:'⭐',contrat:'📝',bingo:'🎯',evolutive:'⚡'}[m.mode] || '🏀';
+          const winA = (m.scoreA||0) > (m.scoreB||0);
+          const winB = (m.scoreB||0) > (m.scoreA||0);
+          const date = m.date ? new Date(m.date).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}) : '';
+          return `<div class="lecon-confrontation">
+            <div class="lecon-conf-team ${winA?'conf-winner':''}">
+              <span class="lecon-team-dot" style="background:${eqA?.couleur||'#888'}"></span>
+              <span class="conf-team-name">${eqA?.nom||'?'}</span>
+            </div>
+            <div class="lecon-conf-score">
+              <span class="${winA?'conf-score-win':''}">${m.scoreA||0}</span>
+              <span class="conf-vs">–</span>
+              <span class="${winB?'conf-score-win':''}">${m.scoreB||0}</span>
+              <span class="conf-mode">${modeLabel}</span>
+              ${date?`<span class="conf-time">${date}</span>`:''}
+            </div>
+            <div class="lecon-conf-team conf-team-right ${winB?'conf-winner':''}">
+              <span class="conf-team-name">${eqB?.nom||'?'}</span>
+              <span class="lecon-team-dot" style="background:${eqB?.couleur||'#888'}"></span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  return classementHtml + confrontHtml;
+}
+
+function toggleLecon(id) {
+  const body = document.getElementById('lecon-body-' + id);
+  if (body) body.classList.toggle('open');
+}
+
+function deleteLecon(id) {
+  if (!confirm('Supprimer cette leçon ?')) return;
+  state.lecons = state.lecons.filter(l=>l.id!==id);
+  saveToStorage(); renderLecons(); toast('✓ Leçon supprimée');
+}
+
+function openNewLecon() {
+  if (!state.activeClassId) { toast('⚠ Sélectionnez une classe'); return; }
+  document.getElementById('lecon-titre').value = `Séance ${state.lecons.filter(l=>l.classId===state.activeClassId).length+1}`;
+  document.getElementById('lecon-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('lecon-copy-from').innerHTML = `<option value="">— Nouvelle configuration —</option>` +
+    state.lecons.filter(l=>l.classId===state.activeClassId).map(l=>`<option value="${l.id}">${l.titre}</option>`).join('');
+  modalPresenceState = {};
+  modalEquipes = [];
+  getActiveEleves().forEach(e => { modalPresenceState[e.id] = 'present'; });
+  renderModalPresence();
+  renderModalEquipes();
+  openModal('modal-new-lecon');
+}
+
+function openEditLecon(id) {
+  const l = state.lecons.find(x=>x.id===id);
+  if (!l) return;
+  document.getElementById('lecon-titre').value = l.titre;
+  document.getElementById('lecon-date').value = l.date || '';
+  document.getElementById('lecon-nb-equipes').value = l.config?.nbEq || 4;
+  document.getElementById('lecon-format').value = l.config?.format || 4;
+  document.getElementById('lecon-type').value = l.config?.type || 'hetero-mixte';
+  document.getElementById('lecon-sport').value = l.config?.sport || 'Basketball';
+  modalPresenceState = { ...(l.presence || {}) };
+  modalEquipes = JSON.parse(JSON.stringify(l.equipes || []));
+  // ensure all eleves have a state
+  getActiveEleves().forEach(e => { if (!modalPresenceState[e.id]) modalPresenceState[e.id] = 'present'; });
+  renderModalPresence();
+  renderModalEquipes();
+  openModal('modal-new-lecon');
+  // Store lecon id for editing
+  openModal.editingLeconId = id;
+}
+openModal.editingLeconId = null;
+
+function renderModalPresence() {
+  const grid = document.getElementById('modal-presence-grid');
+  const eleves = getActiveEleves();
+  grid.innerHTML = eleves.map(e => {
+    const status = modalPresenceState[e.id] || 'present';
+    const dotClass = status === 'present' ? 'dot-present' : status === 'absent' ? 'dot-absent' : 'dot-blesse';
+    return `<div class="presence-item ${status}" onclick="cyclePresence('${e.id}')">
+      <div class="presence-dot ${dotClass}"></div>
+      <span>${e.prenom} ${e.nom||''}</span>
+    </div>`;
+  }).join('');
+}
+
+function cyclePresence(eleveId) {
+  const cycle = {present:'absent', absent:'blesse', blesse:'present'};
+  modalPresenceState[eleveId] = cycle[modalPresenceState[eleveId]||'present'] || 'present';
+  renderModalPresence();
+}
+
+function genererEquipesLecon() {
+  const nbEq = Number(document.getElementById('lecon-nb-equipes').value);
+  const type = document.getElementById('lecon-type').value;
+  const sport = document.getElementById('lecon-sport').value;
+
+  // Get present eleves
+  let eleves = getActiveEleves().filter(e => modalPresenceState[e.id] !== 'absent');
+
+  if (eleves.length < 2) { toast('⚠ Pas assez d\'élèves présents'); return; }
+
+  // Sort by groupement type
+  if (type.includes('demixe')) {
+    eleves.sort((a,b) => {
+      if (a.sexe !== b.sexe) return a.sexe.localeCompare(b.sexe);
+      return b.niveau - a.niveau;
+    });
+  } else {
+    eleves.sort((a,b) => b.niveau - a.niveau);
+  }
+
+  // Apply incompatibilities and affinities shuffling
+  eleves = [...eleves].sort(() => Math.random() * 0.3 - 0.15);
+  if (type.includes('hetero')) eleves.sort((a,b) => b.niveau - a.niveau);
+
+  // Distribute snake draft
+  const equipes = Array.from({length: nbEq}, (_, i) => ({
+    id: uid(), nom: `Équipe ${i+1}`, couleur: COULEURS[i % COULEURS.length], joueurs: []
+  }));
+  let dir = 1; let col = 0;
+  eleves.forEach((e, i) => {
+    equipes[col].joueurs.push(e.id);
+    col += dir;
+    if (col >= nbEq) { col = nbEq - 1; dir = -1; }
+    else if (col < 0) { col = 0; dir = 1; }
+  });
+
+  // Respect incompatibilities (simple swap)
+  for (let iter = 0; iter < 10; iter++) {
+    let swapped = false;
+    eleves.forEach(e => {
+      const incompat = e.incompatibilites || [];
+      const myTeam = equipes.find(eq => eq.joueurs.includes(e.id));
+      incompat.forEach(name => {
+        const other = eleves.find(x => x.prenom.toLowerCase() === name.toLowerCase() || (x.prenom+' '+x.nom).toLowerCase() === name.toLowerCase());
+        if (!other) return;
+        const otherTeam = equipes.find(eq => eq.joueurs.includes(other.id));
+        if (myTeam && otherTeam && myTeam.id === otherTeam.id) {
+          // find best swap
+          const candidate = equipes.find(eq => eq.id !== myTeam.id && eq.joueurs.length > 0);
+          if (candidate) {
+            const swapWith = candidate.joueurs[0];
+            candidate.joueurs = candidate.joueurs.filter(j=>j!==swapWith);
+            myTeam.joueurs = myTeam.joueurs.filter(j=>j!==other.id);
+            myTeam.joueurs.push(swapWith);
+            candidate.joueurs.push(other.id);
+            swapped = true;
+          }
+        }
+      });
+    });
+    if (!swapped) break;
+  }
+
+  modalEquipes = equipes;
+  renderModalEquipes();
+  toast(`✓ ${nbEq} équipes générées (${eleves.length} élèves)`);
+}
+
+function renderModalEquipes() {
+  const section = document.getElementById('modal-equipes-section');
+  const grid = document.getElementById('modal-equipes-grid');
+  if (!section || !grid) return;
+
+  if (!modalEquipes.length) {
+    section.style.display = 'none';
+    const btnR = document.getElementById('btn-remelanger');
+    if (btnR) btnR.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  const btnR = document.getElementById('btn-remelanger');
+  if (btnR) btnR.style.display = 'inline-flex';
+
+  grid.innerHTML = modalEquipes.map(eq => {
+    const joueurs = (eq.joueurs || []).map(jid => state.eleves.find(e => e.id === jid)).filter(Boolean);
+    const avgNiv = joueurs.length
+      ? (joueurs.reduce((s, e) => s + (e.niveau || 3), 0) / joueurs.length).toFixed(1)
+      : '—';
+    return `<div class="equipe-card"
+        ondragover="event.preventDefault(); this.style.outline='2px dashed var(--accent)'"
+        ondragleave="this.style.outline=''"
+        ondrop="dropModalJoueur(event, '${eq.id}'); this.style.outline=''">
+      <div class="equipe-header">
+        <div class="flex" style="gap:8px;align-items:center">
+          <div class="equipe-color-dot" style="background:${eq.couleur}"></div>
+          <div class="equipe-name">${eq.nom}</div>
+        </div>
+        <span class="badge badge-level">Niv. ${avgNiv}</span>
+      </div>
+      <div class="equipe-body" style="min-height:40px">
+        ${joueurs.map(e => `
+          <div class="equipe-joueur"
+              draggable="true"
+              ondragstart="dragModalJoueur(event, '${e.id}', '${eq.id}')"
+              style="cursor:grab">
+            <div class="joueur-dot" style="background:${e.sexe==='M'?'#2563eb':e.sexe==='F'?'#db2777':'#059669'}"></div>
+            <div class="joueur-txt">${e.prenom} ${e.nom || ''}</div>
+            <div class="joueur-lvl">${'★'.repeat(Math.round(e.niveau))}</div>
+          </div>`).join('')}
+      </div>
+      <div class="equipe-footer">
+        <span class="badge badge-teal">${joueurs.length} joueur${joueurs.length > 1 ? 's' : ''}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function dragModalJoueur(event, eleveId, fromEquipeId) {
+  event.dataTransfer.setData('eleveId', eleveId);
+  event.dataTransfer.setData('fromEquipeId', fromEquipeId);
+  event.target.closest('.equipe-joueur').style.opacity = '0.35';
+}
+
+function dropModalJoueur(event, toEquipeId) {
+  event.preventDefault();
+  const eleveId = event.dataTransfer.getData('eleveId');
+  const fromEquipeId = event.dataTransfer.getData('fromEquipeId');
+  if (!eleveId || fromEquipeId === toEquipeId) { renderModalEquipes(); return; }
+
+  const fromEq = modalEquipes.find(eq => eq.id === fromEquipeId);
+  const toEq = modalEquipes.find(eq => eq.id === toEquipeId);
+  if (!fromEq || !toEq) return;
+
+  fromEq.joueurs = fromEq.joueurs.filter(id => id !== eleveId);
+  if (!toEq.joueurs.includes(eleveId)) toEq.joueurs.push(eleveId);
+
+  renderModalEquipes();
+}
+
+function shuffleEquipesLecon() {
+  // Keep same team ids/names/colors but reshuffle players
+  const allJoueurs = modalEquipes.flatMap(eq => eq.joueurs);
+  // Fisher-Yates shuffle
+  for (let i = allJoueurs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allJoueurs[i], allJoueurs[j]] = [allJoueurs[j], allJoueurs[i]];
+  }
+  const nbEq = modalEquipes.length;
+  modalEquipes.forEach(eq => eq.joueurs = []);
+  // Snake draft re-distribution
+  let dir = 1, col = 0;
+  allJoueurs.forEach(jid => {
+    modalEquipes[col].joueurs.push(jid);
+    col += dir;
+    if (col >= nbEq) { col = nbEq - 1; dir = -1; }
+    else if (col < 0) { col = 0; dir = 1; }
+  });
+  renderModalEquipes();
+  toast('🔀 Équipes remélangées');
+}
+
+function saveLecon() {
+  const titre = document.getElementById('lecon-titre').value.trim() || 'Séance';
+  const editingId = openModal.editingLeconId;
+  const id = editingId || uid();
+  const lecon = {
+    id, classId: state.activeClassId,
+    titre, date: document.getElementById('lecon-date').value,
+    config: {
+      nbEq: Number(document.getElementById('lecon-nb-equipes').value),
+      format: Number(document.getElementById('lecon-format').value),
+      type: document.getElementById('lecon-type').value,
+      sport: document.getElementById('lecon-sport').value,
+    },
+    presence: { ...modalPresenceState },
+    equipes: modalEquipes,
+    matchs: editingId ? (state.lecons.find(l=>l.id===editingId)?.matchs || []) : [],
+  };
+  if (editingId) {
+    const idx = state.lecons.findIndex(l=>l.id===editingId);
+    if (idx >= 0) state.lecons[idx] = lecon;
+    openModal.editingLeconId = null;
+  } else {
+    state.lecons.push(lecon);
+  }
+  saveToStorage(); closeModal('modal-new-lecon'); renderLecons();
+  toast('✓ Leçon enregistrée');
+}
+
+function lancerMatchLecon(leconId) {
+  openMatchConfig(leconId);
+  showPage('page-match');
+}
+
+/* ═══════════════════════════════════════════════════
+   MATCH
+═══════════════════════════════════════════════════ */
+function openMatchConfig(preLeconId) {
+  // Fill leçon selector
+  const leconSel = document.getElementById('match-lecon-sel');
+  const lecons = state.lecons.filter(l=>l.classId===state.activeClassId);
+  leconSel.innerHTML = lecons.map(l=>`<option value="${l.id}" ${l.id===preLeconId?'selected':''}>${l.titre}</option>`).join('');
+  updateMatchTeamOptions();
+  selectMode('classique');
+  openModal('modal-match-config');
+}
+
+function updateMatchTeamOptions() {
+  const leconId = document.getElementById('match-lecon-sel').value;
+  const lecon = state.lecons.find(l=>l.id===leconId);
+  const equipes = lecon?.equipes || [];
+  const selA = document.getElementById('match-equipe-a');
+  const selB = document.getElementById('match-equipe-b');
+  const opts = equipes.map((eq,i)=>`<option value="${eq.id}">${eq.nom}</option>`).join('');
+  selA.innerHTML = opts;
+  selB.innerHTML = opts;
+  if (equipes.length >= 2) selB.selectedIndex = 1;
+}
+
+function selectMode(mode) {
+  matchMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const area = document.getElementById('mode-config-area');
+
+  // Helper: create an example-prefilled input that clears on first edit
+  function exInput(id, example, cls='') {
+    return `<input type="text" id="${id}" class="input mode-example-input ${cls}"
+      data-example="${example.replace(/"/g,'&quot;')}"
+      value="${example.replace(/"/g,'&quot;')}"
+      style="color:var(--text3);font-style:italic"
+      onfocus="clearExample(this)"
+      oninput="markEdited(this)">`;
+  }
+
+  if (mode === 'bonifier') {
+    area.innerHTML = `<div class="mode-config-card">
+      <div class="mode-config-header">⭐ Configuration — Bonifier</div>
+      <div class="mode-config-desc">Définissez ce que représente chaque niveau de point. Les valeurs ci-dessous sont des exemples : modifiez-les selon votre séance.</div>
+      <div class="mode-config-fields">
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(34,197,94,.15);color:#16a34a">+1 pt</div>
+          <div style="flex:1"><label class="form-label">Action rapportant 1 point</label>
+            ${exInput('bonif-1','Tir touchant le panier sans entrer (anneau)')}</div>
+        </div>
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(245,158,11,.15);color:#d97706">+10 pts</div>
+          <div style="flex:1"><label class="form-label">Action rapportant 10 points</label>
+            ${exInput("bonif-10","Tir entrant en touchant d'abord le panneau (cerceau)")}</div>
+        </div>
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(240,90,36,.15);color:#f05a24">+100 pts</div>
+          <div style="flex:1"><label class="form-label">Action rapportant 100 points</label>
+            ${exInput('bonif-100','Panier marqué directement')}</div>
+        </div>
+      </div>
+    </div>`;
+  } else if (mode === 'contrat') {
+    area.innerHTML = `<div class="mode-config-card">
+      <div class="mode-config-header">📝 Configuration — Contrat</div>
+      <div class="mode-config-desc">Définissez la condition que l'équipe doit remplir pour déclencher le contrat (+10 pts, ou fin du match en mort subite).</div>
+      <div class="mode-config-fields">
+        <div class="mode-field-row" style="align-items:flex-start;flex-direction:column;gap:6px">
+          <label class="form-label">Condition du contrat</label>
+          ${exInput("contrat-desc","Ex : réaliser 3 passes avant de tirer")}
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;padding:10px 14px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px">
+          <input type="checkbox" id="contrat-mort-subite" style="width:18px;height:18px;cursor:pointer;accent-color:var(--red)">
+          <label for="contrat-mort-subite" style="cursor:pointer;font-weight:600;color:var(--red)">💀 Mort subite — le match s'arrête dès que le contrat est réalisé</label>
+        </div>
+      </div>
+    </div>`;
+  } else if (mode === 'bingo') {
+    area.innerHTML = `<div class="mode-config-card">
+      <div class="mode-config-header">🎯 Configuration — Bingo</div>
+      <div class="mode-config-desc">Définissez les 3 contrats à réaliser. L'équipe qui en accomplit le plus (ou les 3) gagne. Les exemples ci-dessous peuvent être modifiés.</div>
+      <div class="mode-config-fields">
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(139,92,246,.15);color:#7c3aed">B1</div>
+          <div style="flex:1"><label class="form-label">Bingo 1</label>
+            ${exInput('bingo-1','Un panier marqué depuis la raquette')}</div>
+        </div>
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(139,92,246,.15);color:#7c3aed">B2</div>
+          <div style="flex:1"><label class="form-label">Bingo 2</label>
+            ${exInput('bingo-2','Une contre-attaque conclue sans défenseur')}</div>
+        </div>
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(139,92,246,.15);color:#7c3aed">B3</div>
+          <div style="flex:1"><label class="form-label">Bingo 3</label>
+            ${exInput('bingo-3','Un panier marqué par chaque joueur de l\'équipe')}</div>
+        </div>
+      </div>
+    </div>`;
+  } else if (mode === 'evolutive') {
+    area.innerHTML = `<div class="mode-config-card">
+      <div class="mode-config-header">⚡ Configuration — Évolutive</div>
+      <div class="mode-config-desc">Ces règles s'activent automatiquement selon l'écart de score. Les pouvoirs et restrictions sont cumulables. Modifiez les exemples selon votre séance.</div>
+      <div class="mode-config-fields">
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(34,197,94,.15);color:#16a34a">≥ 2 pts</div>
+          <div style="flex:1"><label class="form-label">Règle déclenchée à 2 paniers d'écart</label>
+            ${exInput("evolv-2","L'équipe en retard ne peut plus se faire contrer dans la raquette")}</div>
+        </div>
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(245,158,11,.15);color:#d97706">≥ 4 pts</div>
+          <div style="flex:1"><label class="form-label">Règle déclenchée à 4 paniers d'écart</label>
+            ${exInput('evolv-4','Toucher le porteur de balle l\'oblige à s\'arrêter dans les 2 secondes')}</div>
+        </div>
+        <div class="mode-field-row">
+          <div class="mode-field-badge" style="background:rgba(240,90,36,.15);color:#f05a24">≥ 6 pts</div>
+          <div style="flex:1"><label class="form-label">Règle déclenchée à 6 paniers d'écart</label>
+            ${exInput("evolv-6","Une action de contre-attaque compte double pour l'équipe en retard")}</div>
+        </div>
+      </div>
+    </div>`;
+  } else {
+    area.innerHTML = '';
+  }
+}
+
+function clearExample(input) {
+  if (input.dataset.example && input.value === input.dataset.example) {
+    input.value = '';
+    input.style.color = '';
+    input.style.fontStyle = '';
+  }
+}
+
+function markEdited(input) {
+  input.style.color = '';
+  input.style.fontStyle = '';
+}
+
+function startMatch() {
+  const leconId = document.getElementById('match-lecon-sel').value;
+  const equipeAId = document.getElementById('match-equipe-a').value;
+  const equipeBId = document.getElementById('match-equipe-b').value;
+  if (!leconId || !equipeAId || !equipeBId) { toast('⚠ Sélectionnez la leçon et les deux équipes'); return; }
+  if (equipeAId === equipeBId) { toast('⚠ Sélectionnez deux équipes différentes'); return; }
+
+  const lecon = state.lecons.find(l=>l.id===leconId);
+  const equipeA = lecon?.equipes.find(e=>e.id===equipeAId);
+  const equipeB = lecon?.equipes.find(e=>e.id===equipeBId);
+
+  // Mode config
+  let modeConfig = {};
+  if (matchMode === 'bonifier') {
+    modeConfig = {
+      pts1: document.getElementById('bonif-1')?.value,
+      pts10: document.getElementById('bonif-10')?.value,
+      pts100: document.getElementById('bonif-100')?.value,
+    };
+  } else if (matchMode === 'contrat') {
+    modeConfig = {
+      desc: document.getElementById('contrat-desc')?.value,
+      mortSubite: document.getElementById('contrat-mort-subite')?.checked,
+    };
+  } else if (matchMode === 'bingo') {
+    modeConfig = {
+      bingo1: document.getElementById('bingo-1')?.value,
+      bingo2: document.getElementById('bingo-2')?.value,
+      bingo3: document.getElementById('bingo-3')?.value,
+    };
+  } else if (matchMode === 'evolutive') {
+    modeConfig = {
+      rule2: document.getElementById('evolv-2')?.value,
+      rule4: document.getElementById('evolv-4')?.value,
+      rule6: document.getElementById('evolv-6')?.value,
+    };
+  }
+
+  // Init joueur stats
+  const joueurStats = {};
+  [...(equipeA?.joueurs||[]), ...(equipeB?.joueurs||[])].forEach(jid => {
+    joueurStats[jid] = { terrain: true, totalSec: 0, pmPoints: 0, points: 0, tirsReussis: 0, tirsTentes: 0 };
+  });
+
+  state.match = {
+    actif: true, leconId, equipeAId, equipeBId,
+    scoreA: 0, scoreB: 0,
+    shotsA: 0, shotsB: 0, madeA: 0, madeB: 0,
+    turnoversA: 0, turnoversB: 0,
+    duree: Number(document.getElementById('match-duree').value) || 8,
+    nbPeriodes: Number(document.getElementById('match-periodes').value) || 2,
+    periodeActuelle: 1,
+    timerRunning: false, timerSeconds: 0,
+    mode: matchMode, modeConfig,
+    joueurStats,
+    scoreHistory: [{t:0,a:0,b:0}],
+    bingosDone: {a:{},b:{}},
+    contratsRealises: {a:false,b:false},
+  };
+
+  saveToStorage();
+  closeModal('modal-match-config');
+  renderMatch();
+  toast('▶ Match lancé');
+}
+
+function renderMatch() {
+  const board = document.getElementById('match-board');
+  const noConfig = document.getElementById('match-no-config');
+
+  if (!state.match.actif) {
+    board.style.display = 'none';
+    noConfig.style.display = 'block';
+    return;
+  }
+  noConfig.style.display = 'none';
+  board.style.display = 'block';
+
+  const lecon = state.lecons.find(l=>l.id===state.match.leconId);
+  const equipeA = lecon?.equipes.find(e=>e.id===state.match.equipeAId);
+  const equipeB = lecon?.equipes.find(e=>e.id===state.match.equipeBId);
+
+  document.getElementById('score-name-a').textContent = equipeA?.nom || 'Équipe A';
+  document.getElementById('score-name-b').textContent = equipeB?.nom || 'Équipe B';
+  document.getElementById('score-a').textContent = state.match.scoreA;
+  document.getElementById('score-b').textContent = state.match.scoreB;
+  document.getElementById('match-timer').textContent = formatTime(state.match.timerSeconds);
+  document.getElementById('match-period').textContent = `PÉRIODE ${state.match.periodeActuelle}`;
+
+  const diff = state.match.scoreA - state.match.scoreB;
+  document.getElementById('match-ecart').textContent = diff === 0 ? 'Égalité' :
+    diff > 0 ? `+${diff} pour ${equipeA?.nom}` : `+${Math.abs(diff)} pour ${equipeB?.nom}`;
+
+  // Score buttons
+  renderScoreBtns('a', equipeA);
+  renderScoreBtns('b', equipeB);
+
+  // Power alerts
+  renderPowerAlerts();
+
+  // Players panel
+  renderPlayersPanel(equipeA, equipeB);
+
+  // Classement
+  renderClassement();
+  renderLiveStats(equipeA, equipeB);
+  drawGraph();
+}
+
+function renderScoreBtns(side, equipe) {
+  const cont = document.getElementById(`score-btns-${side}`);
+  const mode = state.match.mode;
+  let btns = '';
+
+  if (mode === 'classique' || mode === 'contrat' || mode === 'bingo' || mode === 'evolutive') {
+    btns += `<button class="score-btn" onclick="addScore('${side}',1,true)">+1</button>
+             <button class="score-btn" onclick="addScore('${side}',2,true)">+2</button>
+             <button class="score-btn" onclick="addScore('${side}',3,true)">+3</button>
+             <button class="score-btn score-btn-minus" onclick="addScore('${side}',-1,false)">−1</button>`;
+    if (mode === 'contrat') {
+      btns += `<button class="score-btn btn-special" onclick="addContrat('${side}')">📝 Contrat (+10)</button>`;
+    }
+    if (mode === 'bingo') {
+      const mc = state.match.modeConfig;
+      [mc.bingo1||'Bingo 1', mc.bingo2||'Bingo 2', mc.bingo3||'Bingo 3'].forEach((b,i) => {
+        const done = state.match.bingosDone[side]?.[i];
+        btns += `<button class="score-btn btn-bingo ${done?'done':''}" onclick="addBingo('${side}',${i})">${done?'✓ ':''} B${i+1}</button>`;
+      });
+    }
+  } else if (mode === 'bonifier') {
+    btns += `<button class="score-btn" onclick="addScore('${side}',1,true)">+1</button>
+             <button class="score-btn btn-special" onclick="addScore('${side}',10,true)">+10</button>
+             <button class="score-btn btn-special" onclick="addScore('${side}',100,true)">+100</button>
+             <button class="score-btn score-btn-minus" onclick="addScore('${side}',-1,false)">−1</button>`;
+  }
+  cont.innerHTML = btns;
+}
+
+function addScore(side, pts, isMade) {
+  if (!state.match.actif) return;
+  if (side === 'a') {
+    state.match.scoreA = Math.max(0, state.match.scoreA + pts);
+    if (pts > 0) { state.match.shotsA++; if (isMade) state.match.madeA++; }
+  } else {
+    state.match.scoreB = Math.max(0, state.match.scoreB + pts);
+    if (pts > 0) { state.match.shotsB++; if (isMade) state.match.madeB++; }
+  }
+  // Update +/- for players on terrain
+  if (pts > 0) {
+    const lecon = state.lecons.find(l=>l.id===state.match.leconId);
+    const scoringTeam = state.match[`equipe${side==='a'?'A':'B'}Id`];
+    const concedingTeam = state.match[`equipe${side==='a'?'B':'A'}Id`];
+    const eq = lecon?.equipes.find(e=>e.id===scoringTeam);
+    const eqOpp = lecon?.equipes.find(e=>e.id===concedingTeam);
+    eq?.joueurs.forEach(jid => {
+      if (state.match.joueurStats[jid]?.terrain) state.match.joueurStats[jid].pmPoints += pts;
+    });
+    eqOpp?.joueurs.forEach(jid => {
+      if (state.match.joueurStats[jid]?.terrain) state.match.joueurStats[jid].pmPoints -= pts;
+    });
+  }
+  // Score history
+  state.match.scoreHistory.push({t: state.match.timerSeconds, a: state.match.scoreA, b: state.match.scoreB});
+
+  // Check contrat mort subite
+  if (state.match.mode === 'contrat' && state.match.modeConfig.mortSubite) {
+    if (state.match.contratsRealises.a || state.match.contratsRealises.b) { finMatch(); return; }
+  }
+  saveToStorage();
+  renderMatch();
+}
+
+function addShot(side, isMade) {
+  if (side === 'a') state.match.shotsA++;
+  else state.match.shotsB++;
+  toast('🎯 Tir tenté enregistré');
+  saveToStorage(); renderLiveStats();
+}
+
+function addTurnover(side) {
+  if (side === 'a') state.match.turnoversA++;
+  else state.match.turnoversB++;
+  toast('🔄 Perte de balle');
+  saveToStorage(); renderLiveStats();
+}
+
+function addBingo(side, idx) {
+  if (!state.match.bingosDone[side]) state.match.bingosDone[side] = {};
+  if (state.match.bingosDone[side][idx]) { toast('⚠ Déjà réalisé'); return; }
+  state.match.bingosDone[side][idx] = true;
+  addScore(side, 0, false); // trigger re-render, bingo doesn't add pts directly
+  const count = Object.keys(state.match.bingosDone[side]).length;
+  toast(`🎯 Bingo ${idx+1} réalisé ! (${count}/3)`);
+  saveToStorage(); renderMatch();
+}
+
+function addContrat(side) {
+  state.match.contratsRealises[side] = true;
+  addScore(side, 10, false);
+  toast(`📝 Contrat réalisé ! +10 pts`);
+  if (state.match.modeConfig.mortSubite) { setTimeout(finMatch, 1500); }
+}
+
+function renderPowerAlerts() {
+  const container = document.getElementById('power-alerts');
+  if (state.match.mode !== 'evolutive') { container.innerHTML = ''; return; }
+  const diff = Math.abs(state.match.scoreA - state.match.scoreB);
+  const leader = state.match.scoreA > state.match.scoreB ? 'A' : 'B';
+  const mc = state.match.modeConfig;
+  let html = '';
+  if (diff >= 2 && mc.rule2) html += `<div class="power-alert"><strong>⚡ Écart ≥ 2</strong>${mc.rule2}</div>`;
+  if (diff >= 4 && mc.rule4) html += `<div class="power-alert"><strong>⚡ Écart ≥ 4</strong>${mc.rule4}</div>`;
+  if (diff >= 6 && mc.rule6) html += `<div class="power-alert"><strong>⚡ Écart ≥ 6</strong>${mc.rule6}</div>`;
+  container.innerHTML = html;
+}
+
+function showMatchTab(tabId) {
+  document.querySelectorAll('.match-subtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.match-tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(tabId)?.classList.add('active');
+  document.querySelectorAll('.match-subtab').forEach(t => {
+    if (t.getAttribute('onclick') === `showMatchTab('${tabId}')`) t.classList.add('active');
+  });
+  if (tabId === 'mtab-graph') drawGraph();
+  if (tabId === 'mtab-live') renderLiveStats();
+}
+
+function renderPlayersPanel(equipeA, equipeB) {
+  const cont = document.getElementById('players-split');
+  if (!cont) return;
+
+  const renderTeam = (equipe, side) => {
+    if (!equipe) return '<div></div>';
+    const joueurs = (equipe.joueurs||[]).map(jid => {
+      const e = state.eleves.find(x=>x.id===jid);
+      const st = state.match.joueurStats[jid] || {};
+      const terrain = st.terrain !== false;
+      const secs = Math.round(st.totalSec || 0);
+      const pm = st.pmPoints || 0;
+      const pmClass = pm > 0 ? 'pm-pos' : pm < 0 ? 'pm-neg' : 'pm-zero';
+      const blesse = (state.lecons.find(l=>l.id===state.match.leconId)?.presence?.[jid] === 'blesse');
+      return `<div class="player-row">
+        <div class="player-status-dot ${blesse?'pdot-blesse':terrain?'pdot-terrain':'pdot-banc'}"></div>
+        <div class="player-name">${e?.prenom||'?'} ${e?.nom||''}</div>
+        <div class="player-time">${formatTime(secs)}</div>
+        <div class="pm-chip ${pmClass}">${pm>=0?'+':''}${pm}</div>
+        <button class="player-toggle-btn ${terrain?'on-field':''}" onclick="toggleJoueur('${jid}')">${terrain?'En jeu':'Banc'}</button>
+      </div>`;
+    }).join('');
+    return `<div class="team-players-card">
+      <div class="team-players-header"><span style="color:${equipe.couleur}">●</span>${equipe.nom}</div>
+      ${joueurs || '<div class="player-row"><div class="player-name text-muted">Aucun joueur</div></div>'}
+    </div>`;
+  };
+
+  const lecon = state.lecons.find(l=>l.id===state.match.leconId);
+  const equipeA2 = lecon?.equipes.find(e=>e.id===state.match.equipeAId);
+  const equipeB2 = lecon?.equipes.find(e=>e.id===state.match.equipeBId);
+  cont.innerHTML = renderTeam(equipeA2,'a') + renderTeam(equipeB2,'b');
+}
+
+function toggleJoueur(jid) {
+  if (!state.match.joueurStats[jid]) state.match.joueurStats[jid] = {terrain:true,totalSec:0,pmPoints:0};
+  state.match.joueurStats[jid].terrain = !state.match.joueurStats[jid].terrain;
+  saveToStorage(); renderMatch();
+}
+
+function renderLiveStats(equipeA, equipeB) {
+  const cont = document.getElementById('live-stats-grid');
+  if (!cont) return;
+  const m = state.match;
+  const pctA = m.shotsA > 0 ? ((m.madeA/m.shotsA)*100).toFixed(0) : 0;
+  const pctB = m.shotsB > 0 ? ((m.madeB/m.shotsB)*100).toFixed(0) : 0;
+  const tMin = m.timerSeconds / 60;
+
+  const lecon = state.lecons.find(l=>l.id===m.leconId);
+  const eqA = lecon?.equipes.find(e=>e.id===m.equipeAId);
+  const eqB = lecon?.equipes.find(e=>e.id===m.equipeBId);
+
+  cont.innerHTML = `
+    <div class="live-stat-card"><div class="live-stat-val">${m.scoreA}</div><div class="live-stat-label">Score ${eqA?.nom||'A'}</div></div>
+    <div class="live-stat-card"><div class="live-stat-val">${m.scoreB}</div><div class="live-stat-label">Score ${eqB?.nom||'B'}</div></div>
+    <div class="live-stat-card"><div class="live-stat-val">${pctA}%</div><div class="live-stat-label">% tir ${eqA?.nom||'A'}</div></div>
+    <div class="live-stat-card"><div class="live-stat-val">${pctB}%</div><div class="live-stat-label">% tir ${eqB?.nom||'B'}</div></div>
+    <div class="live-stat-card"><div class="live-stat-val">${m.turnoversA}</div><div class="live-stat-label">Pertes balle A</div></div>
+    <div class="live-stat-card"><div class="live-stat-val">${m.turnoversB}</div><div class="live-stat-label">Pertes balle B</div></div>
+    <div class="live-stat-card"><div class="live-stat-val">${m.madeA+m.madeB}</div><div class="live-stat-label">Total paniers</div></div>
+    <div class="live-stat-card"><div class="live-stat-val">${formatTime(m.timerSeconds)}</div><div class="live-stat-label">Temps écoulé</div></div>
+  `;
+}
+
+function renderClassement() {
+  const lecon = state.lecons.find(l=>l.id===state.match.leconId);
+  if (!lecon) return;
+  const cont = document.getElementById('classement-table-wrap');
+  if (!cont) return;
+
+  // Simple classement of 2 teams in current match
+  const teams = [
+    { equipe: lecon.equipes.find(e=>e.id===state.match.equipeAId), score: state.match.scoreA },
+    { equipe: lecon.equipes.find(e=>e.id===state.match.equipeBId), score: state.match.scoreB },
+  ].filter(t=>t.equipe).sort((a,b)=>b.score-a.score);
+
+  cont.innerHTML = `<table class="classement-table">
+    <thead><tr><th>#</th><th>Équipe</th><th>Score</th><th>Écart</th></tr></thead>
+    <tbody>${teams.map((t,i)=>`<tr>
+      <td class="rank-num">${i===0?'🥇':i===1?'🥈':'🥉'}</td>
+      <td><span style="color:${t.equipe.couleur};font-weight:700">● ${t.equipe.nom}</span></td>
+      <td style="font-weight:800;font-size:1.1rem">${t.score}</td>
+      <td>${i===0?'+'+Math.abs(state.match.scoreA-state.match.scoreB):'−'+Math.abs(state.match.scoreA-state.match.scoreB)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+/* Timer */
+function toggleTimer() {
+  if (!state.match.actif) return;
+  if (state.match.timerRunning) {
+    // Pause
+    clearInterval(timerInterval); timerInterval = null;
+    state.match.timerRunning = false;
+    document.getElementById('btn-start-stop').textContent = '▶ Reprendre';
+    document.getElementById('btn-start-stop').classList.remove('running');
+  } else {
+    // Start
+    state.match.timerRunning = true;
+    document.getElementById('btn-start-stop').textContent = '⏸ Pause';
+    document.getElementById('btn-start-stop').classList.add('running');
+    const start = Date.now() - state.match.timerSeconds * 1000;
+    timerInterval = setInterval(() => {
+      state.match.timerSeconds = Math.floor((Date.now() - start) / 1000);
+      document.getElementById('match-timer').textContent = formatTime(state.match.timerSeconds);
+      // Update joueur terrainSec
+      Object.entries(state.match.joueurStats).forEach(([jid, st]) => {
+        if (st.terrain) st.totalSec += 1;
+      });
+      // Check period end
+      if (state.match.timerSeconds >= state.match.duree * 60) {
+        clearInterval(timerInterval);
+        state.match.timerRunning = false;
+        toast(`⏰ Fin de la période ${state.match.periodeActuelle}`);
+      }
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval); timerInterval = null;
+  state.match.timerRunning = false;
+  state.match.timerSeconds = 0;
+  document.getElementById('btn-start-stop').textContent = '▶ Démarrer';
+  document.getElementById('btn-start-stop').classList.remove('running');
+  document.getElementById('match-timer').textContent = '00:00';
+}
+
+function nextPeriode() {
+  if (state.match.periodeActuelle >= state.match.nbPeriodes) {
+    toast('C\'est la dernière période !'); return;
+  }
+  resetTimer();
+  state.match.periodeActuelle++;
+  document.getElementById('match-period').textContent = `PÉRIODE ${state.match.periodeActuelle}`;
+  toast(`▶ Période ${state.match.periodeActuelle}`);
+}
+
+function finMatch() {
+  clearInterval(timerInterval); timerInterval = null;
+  state.match.timerRunning = false;
+
+  // Save match result to lecon
+  const lecon = state.lecons.find(l=>l.id===state.match.leconId);
+  if (lecon) {
+    const matchResult = {
+      id: uid(),
+      date: new Date().toISOString(),
+      equipeAId: state.match.equipeAId,
+      equipeBId: state.match.equipeBId,
+      scoreA: state.match.scoreA,
+      scoreB: state.match.scoreB,
+      madeA: state.match.madeA,
+      madeB: state.match.madeB,
+      shotsA: state.match.shotsA,
+      shotsB: state.match.shotsB,
+      turnoversA: state.match.turnoversA,
+      turnoversB: state.match.turnoversB,
+      mode: state.match.mode,
+      dureeSecondes: state.match.timerSeconds,
+    };
+    if (!lecon.matchs) lecon.matchs = [];
+    lecon.matchs.push(matchResult);
+
+    // Update élève stats
+    const eqAJoueurs = lecon.equipes.find(e=>e.id===state.match.equipeAId)?.joueurs || [];
+    const eqBJoueurs = lecon.equipes.find(e=>e.id===state.match.equipeBId)?.joueurs || [];
+    const gagneA = state.match.scoreA > state.match.scoreB;
+    const gagneB = state.match.scoreB > state.match.scoreA;
+
+    // Pre-compute basket-based pm (always 1 pt = 1 panier, mode-agnostic)
+    // We normalise: for 'bonifier', divide by 10 to get approx basket count
+    // For 'classique'/'contrat'/'bingo'/'evolutive' the score IS basket-count (1-3 pts)
+    // We use raw pmPoints for per-mode, but for global we count baskets differently.
+    // To avoid complex normalisation, we store raw pmPoints per mode and
+    // compute a "basket pm" = madeA - madeB weighted by presence.
+    const matchMode = state.match.mode;
+    const totalMadeA = state.match.madeA;
+    const totalMadeB = state.match.madeB;
+
+    const updateEleve = (jid, didWin, side) => {
+      const e = state.eleves.find(x=>x.id===jid);
+      if (!e) return;
+      if (!e.stats) e.stats = { matchsGagnes:0, pmTotal:0, minutesJouees:0, tirsReussis:0, tirsTentes:0, pmBasket:0, parMode:{} };
+      if (!e.stats.parMode) e.stats.parMode = {};
+      if (!e.stats.parMode[matchMode]) e.stats.parMode[matchMode] = { matchs:0, victoires:0, pmTotal:0, pmBasket:0, minutesJouees:0 };
+
+      const st = state.match.joueurStats[jid] || {};
+      const pmRaw = st.pmPoints || 0;
+
+      // Basket-level pm: for classique/contrat/bingo/evolutive, avg pts ≈ 2 per basket
+      // For bonifier 100pts = 1 basket, 10pts ≈ attempt, 1pt = miss → divide by 100
+      let pmBasket;
+      if (matchMode === 'bonifier') {
+        pmBasket = Math.round(pmRaw / 100);
+      } else {
+        // Use actual made/missed baskets ratio from team while player was on
+        const myMade  = side === 'a' ? (st.teamMadeWhileOn||0)  : (st.teamMadeWhileOn||0);
+        const oppMade = side === 'a' ? (totalMadeB * (st.totalSec||0) / Math.max(state.match.timerSeconds,1))
+                                     : (totalMadeA * (st.totalSec||0) / Math.max(state.match.timerSeconds,1));
+        pmBasket = Math.round((st.teamMadeWhileOn||0) - oppMade);
+      }
+
+      if (didWin) { e.stats.matchsGagnes++; e.stats.parMode[matchMode].victoires++; }
+      e.stats.pmTotal += pmRaw;
+      e.stats.pmBasket = (e.stats.pmBasket||0) + pmBasket;
+      e.stats.minutesJouees += (st.totalSec || 0) / 60;
+      e.stats.tirsReussis += (st.teamMadeWhileOn || 0);
+      e.stats.tirsTentes  += (st.teamShotsWhileOn || 0);
+
+      // Per-mode stats
+      e.stats.parMode[matchMode].matchs++;
+      e.stats.parMode[matchMode].pmTotal += pmRaw;
+      e.stats.parMode[matchMode].pmBasket += pmBasket;
+      e.stats.parMode[matchMode].minutesJouees += (st.totalSec || 0) / 60;
+
+      // Update niveau based on basket pm
+      if (Math.abs(pmBasket) >= 4) {
+        const delta = pmBasket > 0 ? 0.2 : -0.2;
+        const oldNiv = e.niveau;
+        e.niveau = Math.min(5, Math.max(1, e.niveau + delta));
+        if (!e.niveauHistory) e.niveauHistory = [];
+        e.niveauHistory.push({ date: new Date().toISOString(), old: oldNiv, new: e.niveau, leconId: lecon.id });
+      }
+    };
+
+    eqAJoueurs.forEach(jid => updateEleve(jid, gagneA, 'a'));
+    eqBJoueurs.forEach(jid => updateEleve(jid, gagneB, 'b'));
+  }
+
+  state.match.actif = false;
+  saveToStorage();
+  toast('🏁 Match terminé ! Les stats ont été mises à jour.');
+  renderMatch();
+  // Go back to match config for next match
+  setTimeout(() => openMatchConfig(state.match.leconId), 800);
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+/* Score Graph — delegates to shared drawGraphOnCanvas */
+function drawGraph() {
+  const lecon = state.lecons.find(l=>l.id===state.match.leconId);
+  const eqA = lecon?.equipes.find(e=>e.id===state.match.equipeAId);
+  const eqB = lecon?.equipes.find(e=>e.id===state.match.equipeBId);
+  drawGraphOnCanvas('score-graph', eqA, eqB);
+}
+
+/* ═══════════════════════════════════════════════════
+   GESTION / ROTATIONS
+═══════════════════════════════════════════════════ */
+function renderEspaces() {
+  const nbTerrains = Number(document.getElementById('nb-terrains')?.value) || 2;
+  const hasArbitrage = document.getElementById('espace-arbitrage')?.checked;
+  const hasApprentissage = document.getElementById('espace-apprentissage')?.checked;
+
+  // Get current equipes from active lecon (latest)
+  const lecons = state.lecons.filter(l=>l.classId===state.activeClassId);
+  const latestLecon = lecons[lecons.length-1];
+  const equipes = latestLecon?.equipes || [];
+
+  // Build espaces
+  const espaces = [];
+  for (let i = 0; i < nbTerrains; i++) espaces.push({type:'terrain', label:`Terrain ${i+1}`, icon:'🏀', equipes:[]});
+  if (hasArbitrage) espaces.push({type:'arbitrage', label:'Arbitrage', icon:'🦺', equipes:[]});
+  if (hasApprentissage) espaces.push({type:'apprentissage', label:'Apprentissage', icon:'📚', equipes:[]});
+
+  // Assign equipes from saved gestion state or auto-distribute
+  const saved = state.gestion.espaces;
+  if (saved.length) {
+    espaces.forEach((esp, i) => {
+      if (saved[i]) esp.equipes = saved[i].equipes || [];
+    });
+  } else {
+    equipes.forEach((eq, i) => {
+      espaces[i % espaces.length].equipes.push(eq.id);
+    });
+    state.gestion.espaces = espaces;
+  }
+
+  const grid = document.getElementById('espaces-grid');
+  grid.innerHTML = espaces.map((esp,i) => `
+    <div class="espace-card ${esp.type}" id="espace-${i}" ondragover="event.preventDefault()" ondrop="dropEquipe(event,${i})">
+      <div class="espace-icon">${esp.icon}</div>
+      <div class="espace-label">${esp.label}</div>
+      <div class="espace-equipes">
+        ${esp.equipes.length
+          ? esp.equipes.map(eqId => {
+              const eq = equipes.find(e=>e.id===eqId);
+              return eq ? `<div class="espace-equipe-tag" draggable="true" ondragstart="dragEquipe(event,'${eqId}',${i})" data-eq="${eqId}">
+                <div class="equipe-color-dot" style="background:${eq.couleur}"></div>${eq.nom}
+              </div>` : '';
+            }).join('')
+          : `<div class="espace-no-team">Aucune équipe</div>`}
+      </div>
+    </div>
+  `).join('');
+}
+
+function dragEquipe(evt, eqId, fromIdx) {
+  evt.dataTransfer.setData('eqId', eqId);
+  evt.dataTransfer.setData('fromIdx', fromIdx);
+}
+
+function dropEquipe(evt, toIdx) {
+  const eqId = evt.dataTransfer.getData('eqId');
+  const fromIdx = Number(evt.dataTransfer.getData('fromIdx'));
+  if (fromIdx === toIdx) return;
+  const espaces = state.gestion.espaces;
+  if (!espaces[fromIdx] || !espaces[toIdx]) return;
+  espaces[fromIdx].equipes = espaces[fromIdx].equipes.filter(id=>id!==eqId);
+  if (!espaces[toIdx].equipes.includes(eqId)) espaces[toIdx].equipes.push(eqId);
+  saveToStorage(); renderEspaces(); renderFdr();
+}
+
+function genererRotation(type) {
+  const espaces = state.gestion.espaces;
+  if (!espaces.length) { toast('⚠ Configurez les espaces d\'abord'); return; }
+  const allEqIds = espaces.flatMap(e=>e.equipes);
+  const n = espaces.length;
+
+  if (type === 'roulement') {
+    // Rotate: last goes to first
+    const allFlat = [...allEqIds];
+    const last = allFlat.pop();
+    allFlat.unshift(last);
+    let idx = 0;
+    espaces.forEach(esp => {
+      esp.equipes = allFlat.slice(idx, idx + esp.equipes.length);
+      idx += esp.equipes.length;
+    });
+    ajouterRotationFdr();
+  } else if (type === 'inversion') {
+    espaces.forEach(esp => esp.equipes.reverse());
+    ajouterRotationFdr();
+  }
+  saveToStorage(); renderEspaces(); renderFdr();
+}
+
+function ajouterRotationFdr() {
+  const espaces = state.gestion.espaces;
+  const lecons = state.lecons.filter(l=>l.classId===state.activeClassId);
+  const lecon = lecons[lecons.length-1];
+  const dureeMin = Number(document.getElementById('duree-rotation')?.value) || 8;
+  const rowIndex = state.gestion.fdr.length;
+  const startMin = rowIndex * dureeMin;
+
+  const row = {
+    label: `${String(Math.floor(startMin/60)).padStart(2,'0')}:${String(startMin%60).padStart(2,'0')} – ${String(Math.floor((startMin+dureeMin)/60)).padStart(2,'0')}:${String((startMin+dureeMin)%60).padStart(2,'0')}`,
+    espaces: espaces.map(esp => ({
+      label: esp.label,
+      equipes: [...esp.equipes],
+    })),
+  };
+  state.gestion.fdr.push(row);
+  saveToStorage(); renderFdr();
+  toast('✓ Rotation ajoutée à la feuille de route');
+}
+
+function renderFdr() {
+  const wrap = document.getElementById('fdr-wrap');
+  const fdr = state.gestion.fdr;
+  if (!fdr.length) { wrap.innerHTML = '<div class="text-muted text-sm">Aucune rotation planifiée. Utilisez les boutons ci-dessus.</div>'; return; }
+
+  const lecons = state.lecons.filter(l=>l.classId===state.activeClassId);
+  const lecon = lecons[lecons.length-1];
+  const equipes = lecon?.equipes || [];
+
+  const headers = fdr[0].espaces.map(e=>e.label).join('</th><th>');
+  const current = state.match.actif ? Math.min(state.gestion.fdr.length-1, state.gestion.currentFdrRow) : -1;
+
+  wrap.innerHTML = `<div style="overflow-x:auto"><table class="fdr-table">
+    <thead><tr><th>Horaire</th><th>${headers}</th></tr></thead>
+    <tbody>${fdr.map((row,i) => `
+      <tr class="fdr-row ${i===current?'current':''}">
+        <td>${row.label}</td>
+        ${row.espaces.map(esp => `<td>${esp.equipes.map(eqId=>{
+          const eq = equipes.find(e=>e.id===eqId);
+          return eq ? `<span style="display:inline-block;background:${eq.couleur}22;border:1px solid ${eq.couleur};border-radius:5px;padding:2px 8px;font-size:.8rem;font-weight:700;color:${eq.couleur};margin:2px">${eq.nom}</span>` : '';
+        }).join('') || '<span style="color:var(--text3);font-size:.8rem">—</span>'}</td>`).join('')}
+      </tr>`).join('')}
+    </tbody>
+  </table></div>
+  <div style="margin-top:8px;display:flex;gap:8px">
+    <button class="btn btn-secondary btn-sm" onclick="state.gestion.fdr.pop();saveToStorage();renderFdr()">✕ Supprimer dernière</button>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════════ */
+const MODE_LABELS = {
+  classique:  { icon:'🏀', label:'Classique',  color:'#003087' },
+  bonifier:   { icon:'⭐', label:'Bonifier',   color:'#d97706' },
+  contrat:    { icon:'📝', label:'Contrat',    color:'#059669' },
+  bingo:      { icon:'🎯', label:'Bingo',      color:'#7c3aed' },
+  evolutive:  { icon:'⚡', label:'Évolutive',  color:'#dc2626' },
+};
+
+function pmColor(v) {
+  if (v > 0) return 'color:var(--green)';
+  if (v < 0) return 'color:var(--red)';
+  return 'color:var(--text3)';
+}
+function pmLabel(v) { return (v >= 0 ? '+' : '') + v; }
+function pctLabel(made, att) { return att > 0 ? Math.round(made/att*100)+'%' : '—'; }
+
+function renderStats() {
+  const eleves = getActiveEleves()
+    .map(e => ({ e, stats: e.stats || {} }))
+    .sort((a,b) => (b.stats.pmBasket||0) - (a.stats.pmBasket||0));
+
+  const list = document.getElementById('stats-list');
+  if (!eleves.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📊</div><div class="empty-title">Aucune donnée</div><div class="empty-desc">Jouez des matchs pour voir les statistiques.</div></div>`;
+    return;
+  }
+
+  list.innerHTML = eleves.map(({e, stats}, i) => {
+    const pmB   = stats.pmBasket || 0;
+    const pmRaw = stats.pmTotal  || 0;
+    const pct   = pctLabel(stats.tirsReussis||0, stats.tirsTentes||0);
+    const niv   = typeof e.niveau === 'number' ? e.niveau.toFixed(1) : '3.0';
+    const init  = ((e.prenom||'')[0]||'').toUpperCase();
+    const parMode = stats.parMode || {};
+    const modesJoues = Object.keys(parMode);
+
+    // Mode detail rows
+    const modeRows = modesJoues.map(m => {
+      const d = parMode[m];
+      const ml = MODE_LABELS[m] || { icon:'?', label: m, color:'#888' };
+      return `<div class="stat-mode-row">
+        <span class="stat-mode-badge" style="background:${ml.color}22;color:${ml.color};border-color:${ml.color}44">
+          ${ml.icon} ${ml.label}
+        </span>
+        <div class="stat-mode-vals">
+          <span class="stat-mode-val">
+            <span class="smv-num" style="${pmColor(d.pmBasket||0)}">${pmLabel(d.pmBasket||0)}</span>
+            <span class="smv-lbl">+/− paniers</span>
+          </span>
+          <span class="stat-mode-val">
+            <span class="smv-num" style="${pmColor(d.pmTotal||0)}">${pmLabel(d.pmTotal||0)}</span>
+            <span class="smv-lbl">+/− pts (brut)</span>
+          </span>
+          <span class="stat-mode-val">
+            <span class="smv-num">${d.matchs||0}</span>
+            <span class="smv-lbl">matchs</span>
+          </span>
+          <span class="stat-mode-val">
+            <span class="smv-num">${d.victoires||0}</span>
+            <span class="smv-lbl">victoires</span>
+          </span>
+          <span class="stat-mode-val">
+            <span class="smv-num">${Math.round(d.minutesJouees||0)} min</span>
+            <span class="smv-lbl">temps</span>
+          </span>
+        </div>
+      </div>`;
+    }).join('');
+
+    const hasDetail = modesJoues.length > 0;
+
+    return `<div class="stat-eleve-block" id="seb-${e.id}">
+      <!-- Summary row -->
+      <div class="stat-summary-row" onclick="toggleStatDetail('${e.id}')" ${hasDetail?'style="cursor:pointer"':''}>
+        <span class="stat-rank">${i+1}</span>
+        <div class="avatar avatar-${e.sexe}" style="width:34px;height:34px;font-size:.85rem;flex-shrink:0">${init}</div>
+        <div class="stat-name-block">
+          <span class="stat-fullname">${e.prenom} ${e.nom||''}</span>
+          <span class="stat-mode-pills">
+            ${modesJoues.map(m=>{const ml=MODE_LABELS[m]||{icon:'?'};return `<span style="font-size:.65rem">${ml.icon}</span>`;}).join('')}
+          </span>
+        </div>
+        <!-- Global basket pm (mode-agnostic) -->
+        <div class="stat-col">
+          <span class="stat-col-val" style="${pmColor(pmB)}">${pmLabel(pmB)}</span>
+          <span class="stat-col-lbl">+/− paniers</span>
+        </div>
+        <!-- Wins -->
+        <div class="stat-col">
+          <span class="stat-col-val">${stats.matchsGagnes||0}</span>
+          <span class="stat-col-lbl">victoires</span>
+        </div>
+        <!-- Minutes -->
+        <div class="stat-col">
+          <span class="stat-col-val">${Math.round(stats.minutesJouees||0)}</span>
+          <span class="stat-col-lbl">minutes</span>
+        </div>
+        <!-- % tir équipe -->
+        <div class="stat-col">
+          <span class="stat-col-val">${pct}</span>
+          <span class="stat-col-lbl">% équipe</span>
+        </div>
+        <!-- Niveau -->
+        <div class="stat-col">
+          <span class="badge badge-level">${niv}</span>
+          <span class="stat-col-lbl">niveau</span>
+        </div>
+        ${hasDetail ? `<span class="stat-expand-icon" id="sei-${e.id}">▸</span>` : '<span style="width:16px"></span>'}
+      </div>
+      <!-- Mode detail (collapsed) -->
+      ${hasDetail ? `<div class="stat-detail-panel" id="sdp-${e.id}" style="display:none">
+        <div class="stat-detail-inner">
+          <div class="stat-detail-note">
+            ⚠️ Le +/− en points bruts varie selon le mode de scoring. Le +/− paniers (colonne résumé) est toujours comparable.
+          </div>
+          ${modeRows}
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleStatDetail(eleveId) {
+  const panel = document.getElementById('sdp-' + eleveId);
+  const icon  = document.getElementById('sei-' + eleveId);
+  if (!panel) return;
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (icon) icon.textContent = open ? '▸' : '▾';
+}
+
+/* ═══════════════════════════════════════════════════
+   DEMO DATA
+═══════════════════════════════════════════════════ */
+function loadDemo() {
+  const classId = uid();
+  const cl = { id: classId, nom: '5ème A — Démo', sport: 'Basketball', annee: '2025-2026', share: [], couleur: CLASS_COLORS[0] };
+  state.classes.push(cl);
+  state.activeClassId = classId;
+
+  const prenoms = ['Lucas','Théo','Hugo','Maxime','Nathan','Tom','Léo','Antoine','Emma','Chloé','Léa','Inès','Manon','Camille','Julie','Sarah','Jade','Lucie','Baptiste','Mathieu'];
+  const noms =    ['Dupont','Martin','Bernard','Thomas','Petit','Robert','Leroy','Simon','Garcia','Laurent','Leblanc','Moreau','Roux','David','Fontaine','Lecomte','Garnier','Morin','Clement','Gauthier'];
+  const sexes =   ['M','M','M','M','M','M','M','M','F','F','F','F','F','F','F','F','F','F','M','M'];
+  const niveaux = [4,3,3,4,2,2,3,3,4,3,3,2,4,3,2,3,4,2,3,3];
+
+  const eleves = prenoms.map((prenom,i) => ({
+    id: uid(), classId,
+    prenom, nom: noms[i],
+    sexe: sexes[i],
+    niveau: niveaux[i],
+    niveauHistory: [],
+    affinites: [], incompatibilites: [],
+    stats: { matchsGagnes: Math.floor(Math.random()*8), pmTotal: Math.floor(Math.random()*20)-10, minutesJouees: Math.floor(Math.random()*60)+10, tirsReussis: Math.floor(Math.random()*15), tirsTentes: Math.floor(Math.random()*25)+5 }
+  }));
+  state.eleves.push(...eleves);
+
+  // Create 2 leçons
+  const equipes1 = [
+    {id:uid(),nom:'Équipe 1',couleur:COULEURS[0],joueurs:eleves.slice(0,5).map(e=>e.id)},
+    {id:uid(),nom:'Équipe 2',couleur:COULEURS[1],joueurs:eleves.slice(5,10).map(e=>e.id)},
+    {id:uid(),nom:'Équipe 3',couleur:COULEURS[2],joueurs:eleves.slice(10,15).map(e=>e.id)},
+    {id:uid(),nom:'Équipe 4',couleur:COULEURS[3],joueurs:eleves.slice(15).map(e=>e.id)},
+  ];
+  const presence1 = {};
+  eleves.forEach(e => { presence1[e.id] = 'present'; });
+
+  state.lecons.push({
+    id: uid(), classId,
+    titre: 'Séance 1 — Phase de découverte',
+    date: '2025-09-15',
+    config: { nbEq:4, format:4, type:'hetero-mixte', sport:'Basketball' },
+    equipes: equipes1, presence: presence1, matchs: [],
+  });
+
+  const equipes2 = [
+    {id:uid(),nom:'Équipe A',couleur:COULEURS[4],joueurs:eleves.slice(0,5).map(e=>e.id)},
+    {id:uid(),nom:'Équipe B',couleur:COULEURS[5],joueurs:eleves.slice(5,10).map(e=>e.id)},
+    {id:uid(),nom:'Équipe C',couleur:COULEURS[6],joueurs:eleves.slice(10,15).map(e=>e.id)},
+    {id:uid(),nom:'Équipe D',couleur:COULEURS[7],joueurs:eleves.slice(15).map(e=>e.id)},
+  ];
+  state.lecons.push({
+    id: uid(), classId,
+    titre: 'Séance 2 — Matchs en équipes',
+    date: '2025-09-22',
+    config: { nbEq:4, format:4, type:'hetero-mixte', sport:'Basketball' },
+    equipes: equipes2, presence: presence1, matchs: [],
+  });
+
+  saveToStorage(); renderClasses(); renderNavClassSelect();
+  showPage('page-eleves'); toast('🎮 Démo chargée : 20 élèves, 2 leçons');
+}
+
+/* ── Init renderEspaces after DOM ready ─ */
+document.addEventListener('DOMContentLoaded', () => {
+  const d = document.getElementById('lecon-date');
+  if (d) d.value = new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>
